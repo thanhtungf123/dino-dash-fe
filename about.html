@@ -26,40 +26,41 @@
     </nav>
 
     <main class="page">
-      <h1 class="page-title">Giới thiệu về Dino Dash</h1>
+      <!-- Nội dung tĩnh (SEO + fallback); JS sẽ thay bằng nội dung admin nếu có -->
+      <div id="about-root" class="page-root">
+        <h1 class="page-title">Giới thiệu về Dino Dash</h1>
 
-      <section class="content-section">
-        <p>
-          <strong>Dino Dash</strong> là phiên bản game khủng long chạy (T-Rex
-          Runner) kinh điển của trình duyệt Chrome — trò chơi xuất hiện khi bạn
-          mất kết nối mạng. Chú khủng long sẽ chạy vô tận, nhiệm vụ của bạn là
-          nhảy và cúi để vượt qua xương rồng và chim, đi càng xa càng tốt.
-        </p>
-        <p>
-          Ở Dino Dash, trò chơi được nâng cấp với hệ thống
-          <strong>đăng nhập</strong>, <strong>lưu điểm</strong> và
-          <strong>bảng xếp hạng trực tuyến</strong>, để bạn không chỉ chơi cho
-          vui mà còn ganh đua thứ hạng với mọi người.
-        </p>
-        <p>
-          Trò chơi <strong>miễn phí</strong>, chạy trực tiếp trên trình duyệt,
-          không cần cài đặt, mượt mà trên cả máy tính lẫn điện thoại.
-        </p>
-      </section>
-
-      <section class="content-section">
-        <h2>Tính năng nổi bật</h2>
-        <ul class="howto-list">
-          <li>Đăng nhập tài khoản, lưu kỷ lục cá nhân.</li>
-          <li>Bảng xếp hạng chung — ai cũng xem được top người chơi.</li>
-          <li>Chế độ ngày/đêm tự chuyển theo điểm số.</li>
-          <li>Điều khiển cảm ứng cho điện thoại (nút nhảy/cúi).</li>
-          <li>Phần thưởng hàng tháng cho những tay chơi xuất sắc.</li>
-        </ul>
-      </section>
+        <section class="content-section">
+          <p>
+            <strong>Dino Dash</strong> là phiên bản game khủng long chạy (T-Rex
+            Runner) kinh điển của trình duyệt Chrome — trò chơi xuất hiện khi bạn
+            mất kết nối mạng. Chú khủng long sẽ chạy vô tận, nhiệm vụ của bạn là
+            nhảy và cúi để vượt qua xương rồng và chim, đi càng xa càng tốt.
+          </p>
+          <p>
+            Ở Dino Dash, trò chơi được nâng cấp với hệ thống
+            <strong>đăng nhập</strong>, <strong>lưu điểm</strong> và
+            <strong>bảng xếp hạng trực tuyến</strong>, để bạn không chỉ chơi cho
+            vui mà còn ganh đua thứ hạng với mọi người.
+          </p>
+          <p>
+            Trò chơi <strong>miễn phí</strong>, chạy trực tiếp trên trình duyệt,
+            không cần cài đặt, mượt mà trên cả máy tính lẫn điện thoại.
+          </p>
+        </section>
+      </div>
 
       <p class="page-back"><a href="index.html">← Về trang chơi</a></p>
     </main>
+
+    <script type="module">
+      import { initContentPage, renderAbout } from './app/content.js';
+      initContentPage(
+        'about',
+        document.getElementById('about-root'),
+        renderAbout
+      );
+    </script>
 
     <footer class="site-footer">
       <p>© 2026 Dino Dash · Game khủng long chạy vượt chướng ngại vật.</p>

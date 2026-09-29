@@ -44,4 +44,10 @@ export const api = {
 
   leaderboard: limit =>
     request(`/leaderboard${limit ? `?limit=${limit}` : ''}`),
+
+  // Nội dung website (Giới thiệu / Phần thưởng).
+  getContent: key => request(`/content/${key}`),
+
+  updateContent: (key, data) =>
+    request(`/content/${key}`, { method: 'PUT', body: { data } }),
 };

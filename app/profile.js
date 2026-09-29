@@ -62,6 +62,7 @@ async function render() {
       </div>
       <div class="profile-actions">
         <a class="auth-btn auth-btn-ghost" href="index.html">Chơi tiếp</a>
+        ${me.isAdmin ? '<a class="auth-btn" href="admin.html">Trang quản trị</a>' : ''}
         <button class="auth-btn auth-logout" id="profile-logout">Đăng xuất</button>
       </div>
     </div>`;
