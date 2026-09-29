@@ -17,7 +17,7 @@ function escapeHtml(str) {
   );
 }
 
-function render(list, currentUsername) {
+function render(list, me) {
   if (!list.length) {
     boxEl.innerHTML = `
       <h2 class="lb-title">Bảng xếp hạng</h2>
@@ -29,7 +29,7 @@ function render(list, currentUsername) {
     .map((entry, i) => {
       const rank = i + 1;
       const medal = ['🥇', '🥈', '🥉'][i] || rank;
-      const isMe = currentUsername && entry.username === currentUsername;
+      const isMe = me && entry.username === me.username;
       return `
         <tr class="${isMe ? 'lb-me' : ''}">
           <td class="lb-rank">${medal}</td>
@@ -39,25 +39,34 @@ function render(list, currentUsername) {
     })
     .join('');
 
+  // Nếu người chơi đã có điểm nhưng KHÔNG nằm trong Top 10 -> hiện hạng riêng.
+  const inTop = me && list.some(e => e.username === me.username);
+  const myRankRow =
+    me && me.rank && !inTop
+      ? `
+        <tr class="lb-me lb-me-row">
+          <td class="lb-rank">#${me.rank}</td>
+          <td class="lb-name">${escapeHtml(me.username)} (bạn)</td>
+          <td class="lb-score">${me.bestScore}</td>
+        </tr>`
+      : '';
+
   boxEl.innerHTML = `
-    <h2 class="lb-title">Bảng xếp hạng — Top 10</h2>
+    <h2 class="lb-title">Bảng xếp hạng — Top ${list.length}</h2>
     <table class="lb-table">
       <thead>
         <tr><th>#</th><th>Người chơi</th><th>Điểm</th></tr>
       </thead>
-      <tbody>${rows}</tbody>
+      <tbody>${rows}${myRankRow}</tbody>
     </table>`;
 }
 
-/**
- * Tải và hiển thị bảng xếp hạng.
- * @param {string=} currentUsername Tô đậm dòng của người đang đăng nhập.
- */
-export async function loadLeaderboard(currentUsername) {
+/** Tải và hiển thị bảng xếp hạng (backend tự nhận biết bạn qua cookie). */
+export async function loadLeaderboard(limit) {
   if (!boxEl) return;
   try {
-    const { leaderboard } = await api.leaderboard();
-    render(leaderboard, currentUsername);
+    const { leaderboard, me } = await api.leaderboard(limit);
+    render(leaderboard, me);
   } catch (err) {
     boxEl.innerHTML = `
       <h2 class="lb-title">Bảng xếp hạng</h2>

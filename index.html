@@ -9,27 +9,92 @@
   <meta name="color-scheme" content="light" />
   <meta name="theme-color" content="#fff" />
 
-  <title>Dino Dash</title>
+  <title>Dino Dash — Game Khủng Long Chạy Vượt Chướng Ngại Vật</title>
+  <meta name="description"
+    content="Dino Dash — game khủng long chạy vượt chướng ngại vật miễn phí. Đăng nhập, cày điểm, leo top bảng xếp hạng và nhận quà hàng tháng. Chơi ngay trên trình duyệt!" />
+  <meta name="keywords" content="dino dash, game khủng long, t-rex runner, game chạy, bảng xếp hạng, chơi game online" />
+
+  <!-- Open Graph (hiển thị đẹp khi chia sẻ link) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Dino Dash — Game Khủng Long Chạy" />
+  <meta property="og:description"
+    content="Đăng nhập, cày điểm, leo top bảng xếp hạng và nhận quà hàng tháng. Chơi miễn phí ngay!" />
+  <!-- TODO: đổi thành URL tuyệt đối của ảnh + trang sau khi có domain chính thức -->
+  <meta property="og:image" content="images/default_100_percent/100-offline-sprite.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <link rel="stylesheet" href="trex.css" />
   <link rel="stylesheet" href="custom.css" />
 </head>
 
 <body class="">
-  <div class="container">
+  <!-- Thanh điều hướng: logo + menu -->
+  <nav class="site-nav">
+    <a class="site-logo" href="index.html">🦖 Dino Dash</a>
+    <ul class="nav-menu">
+      <li><a href="index.html" aria-current="page">Chơi ngay</a></li>
+      <li><a href="how-to-play.html">Cách chơi</a></li>
+      <li><a href="leaderboard.html">Bảng xếp hạng</a></li>
+      <li><a href="rewards.html">Phần thưởng</a></li>
+      <li><a href="about.html">Giới thiệu</a></li>
+      <li><a href="profile.html">Hồ sơ</a></li>
+    </ul>
+  </nav>
+
+  <div class="container" id="top">
     <div class="header">
-      <h1>Dino Dash</h1>
+      <h1>Dino Dash — Game Khủng Long Chạy</h1>
       <h4>( SPACE to Start - Press 'F' to go fullscreen )</h4>
     </div>
 
-    <!-- Game Instance -->
-    <div class="trex-game"></div>
+    <!-- Game Instance (nút Bắt đầu/Chơi lại nằm bên trong, đè lên canvas) -->
+    <div class="trex-game">
+      <button type="button" class="game-action-btn" id="game-action">▶ Bắt đầu</button>
+    </div>
+
+    <!-- Nút nhảy/cúi cho mobile (ẩn trên desktop) -->
+    <div class="mobile-controls" id="mobile-controls">
+      <div class="mc-move">
+        <button type="button" class="mc-btn mc-duck" id="btn-duck">⬇ Cúi</button>
+        <button type="button" class="mc-btn mc-jump" id="btn-jump">⬆ Nhảy</button>
+      </div>
+    </div>
 
     <!-- Đăng nhập (thêm mới) -->
     <div class="account-box" id="account-box"></div>
 
     <!-- Bảng xếp hạng (thêm mới) -->
     <div class="leaderboard-box" id="leaderboard-box"></div>
+    <a class="lb-viewall" href="leaderboard.html">Xem bảng xếp hạng đầy đủ →</a>
   </div>
+
+  <!-- ===== Teaser phần thưởng (chi tiết ở trang riêng) ===== -->
+  <main class="site-content">
+    <section class="content-section cta-section">
+      <h2>Cày điểm — Nhận quà mỗi tháng 🎁</h2>
+      <p>
+        Đăng nhập, leo top bảng xếp hạng và nhận
+        <strong>thưởng tiền mặt hàng tháng</strong> — Top 1 lên tới
+        <strong>300.000đ</strong>!
+      </p>
+      <p class="cta-note">
+        <a href="rewards.html">Xem thể lệ &amp; phần thưởng →</a>
+      </p>
+    </section>
+
+    <section class="content-section">
+      <p>
+        <strong>Dino Dash</strong> là game khủng long chạy vượt chướng ngại vật,
+        miễn phí trên trình duyệt.
+        <a href="how-to-play.html">Cách chơi</a> ·
+        <a href="about.html">Giới thiệu</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Dino Dash · Game khủng long chạy vượt chướng ngại vật.</p>
+  </footer>
 
   <!-- Resources for the Trex Game -->
   <div id="offline-resources" style="display: none">

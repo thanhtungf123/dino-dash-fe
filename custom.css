@@ -12,6 +12,8 @@
 .trex-game {
   max-width: 600px;
   width: 100%;
+  position: relative;
+  /* mốc định vị cho nút Bắt đầu/Chơi lại bên trong */
   /* Chuyển động mượt khi phóng to / thu nhỏ (bấm F vào/ra arcade). */
   transition: transform 0.4s ease, margin 0.4s ease;
 }
@@ -183,6 +185,20 @@ a:active {
   cursor: not-allowed;
 }
 
+.auth-show {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-show input {
+  width: auto;
+  cursor: pointer;
+}
+
 .auth-status {
   display: flex;
   align-items: center;
@@ -254,6 +270,11 @@ a:active {
   font-weight: bold;
 }
 
+/* Dòng hiển thị hạng của bạn khi ở ngoài Top 10 */
+.lb-me-row td {
+  border-top: 2px dashed rgba(232, 176, 75, 0.5);
+}
+
 /* Mobile */
 @media screen and (max-width: 600px) {
   .auth-fields {
@@ -286,4 +307,359 @@ body.arcade-mode .trex-game {
     transform: scale(1.25);
     margin: 30px 0;
   }
+}
+
+/* --- Nút điều khiển mobile (mặc định ẩn; chỉ hiện trên thiết bị cảm ứng/màn nhỏ) --- */
+.mobile-controls {
+  display: none;
+  width: 100%;
+  max-width: 600px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (pointer: coarse),
+(max-width: 768px) {
+  .mobile-controls {
+    display: flex;
+  }
+}
+
+.mc-move {
+  display: flex;
+  gap: 12px;
+}
+
+.mc-btn {
+  flex: 1;
+  padding: 18px 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(122, 122, 122);
+  color: #111;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  /* chống cuộn/zoom khi đang giữ nút */
+}
+
+.mc-btn:active {
+  opacity: 0.85;
+  transform: scale(0.97);
+}
+
+.mc-start {
+  background: #e8b04b;
+}
+
+/* Nút Bắt đầu / Chơi lại — nhỏ, không màu, nằm đè bên trong khung game */
+.game-action-btn {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 3px 12px;
+  border: 1px solid #535353;
+  border-radius: 4px;
+  background: transparent;
+  color: #535353;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.game-action-btn:hover {
+  background: rgba(83, 83, 83, 0.08);
+}
+
+.game-action-btn:active {
+  transform: translateX(-50%) scale(0.96);
+}
+
+/* ===================== NAV + LOGO + NỘI DUNG (SEO) ===================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Cuộn tới mục không bị nav che */
+[id] {
+  scroll-margin-top: 80px;
+}
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(122, 122, 122, 0.2);
+}
+
+.site-logo {
+  font-family: OnchainDino;
+  text-transform: uppercase;
+  font-size: 18px;
+  color: rgb(90, 90, 90);
+  text-decoration: none;
+}
+
+.nav-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-menu a {
+  font-size: 14px;
+  color: rgb(100, 100, 100);
+  text-decoration: none;
+}
+
+.nav-menu a:hover {
+  color: #111;
+  text-decoration: underline;
+}
+
+/* Nội dung chính */
+.site-content {
+  max-width: 760px;
+  margin: 48px auto 0;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.content-section h2 {
+  font-family: OnchainDino;
+  text-transform: uppercase;
+  font-size: 20px;
+  color: rgb(90, 90, 90);
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.content-section p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgb(90, 90, 90);
+  margin: 0 0 12px;
+}
+
+.howto-list {
+  font-size: 15px;
+  line-height: 1.9;
+  color: rgb(90, 90, 90);
+  padding-left: 20px;
+}
+
+kbd {
+  font-family: monospace;
+  background: rgba(122, 122, 122, 0.15);
+  border: 1px solid rgba(122, 122, 122, 0.4);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 13px;
+}
+
+/* Phần thưởng / CTA */
+.cta-section {
+  border: 1px solid rgba(232, 176, 75, 0.6);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  background: rgba(232, 176, 75, 0.06);
+}
+
+.prize-grid {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 20px 0 12px;
+}
+
+.prize-card {
+  min-width: 130px;
+  padding: 16px 20px;
+  border: 1px solid rgba(232, 176, 75, 0.5);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.prize-rank {
+  font-size: 15px;
+  color: rgb(90, 90, 90);
+  margin-bottom: 6px;
+}
+
+.prize-amount {
+  font-family: OnchainDino;
+  font-size: 22px;
+  color: #d1901f;
+}
+
+.cta-note {
+  font-size: 13px !important;
+  opacity: 0.85;
+}
+
+.cta-note a {
+  color: #d1901f;
+  font-weight: 600;
+}
+
+/* Footer */
+.site-footer {
+  margin-top: 56px;
+  padding: 28px 20px;
+  border-top: 1px solid rgba(122, 122, 122, 0.2);
+  text-align: center;
+  font-size: 13px;
+  color: rgb(122, 122, 122);
+}
+
+/* Mobile: menu gọn lại */
+@media screen and (max-width: 600px) {
+  .site-nav {
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  .nav-menu {
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .nav-menu a {
+    font-size: 13px;
+  }
+}
+
+/* Menu: link trang hiện tại */
+.nav-menu a[aria-current='page'] {
+  color: #111;
+  font-weight: 700;
+}
+
+/* ===================== TRANG CON + HỒ SƠ ===================== */
+
+.page {
+  max-width: 760px;
+  margin: 40px auto 0;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.page-title {
+  font-family: OnchainDino;
+  text-transform: uppercase;
+  font-size: 26px;
+  color: rgb(90, 90, 90);
+  text-align: center;
+  margin: 8px 0 0;
+}
+
+.page-back {
+  text-align: center;
+}
+
+.page-back a {
+  color: rgb(100, 100, 100);
+}
+
+/* Link "xem đầy đủ" dưới bảng xếp hạng ở trang chủ */
+.lb-viewall {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #d1901f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lb-viewall:hover {
+  text-decoration: underline;
+}
+
+/* Thẻ hồ sơ người dùng */
+.profile-card {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+  border: 1px solid rgba(122, 122, 122, 0.3);
+  border-radius: 14px;
+  padding: 32px 24px;
+  color: rgb(90, 90, 90);
+}
+
+.profile-avatar {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.profile-name {
+  font-family: OnchainDino;
+  text-transform: uppercase;
+  font-size: 22px;
+  color: rgb(90, 90, 90);
+  margin: 12px 0 24px;
+  word-break: break-word;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  min-width: 80px;
+}
+
+.stat-num {
+  font-family: OnchainDino;
+  font-size: 26px;
+  color: #d1901f;
+}
+
+.stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: rgb(122, 122, 122);
+  margin-top: 4px;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.profile-actions .auth-btn {
+  text-decoration: none;
 }

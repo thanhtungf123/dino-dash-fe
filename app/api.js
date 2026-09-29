@@ -36,8 +36,12 @@ export const api = {
 
   me: () => request('/auth/me'),
 
-  submitScore: score =>
-    request('/scores', { method: 'POST', body: { score } }),
+  // Xin session token khi bắt đầu ván (dùng cho anti-cheat).
+  startSession: () => request('/scores/session', { method: 'POST' }),
 
-  leaderboard: () => request('/leaderboard'),
+  submitScore: (score, sessionToken) =>
+    request('/scores', { method: 'POST', body: { score, sessionToken } }),
+
+  leaderboard: limit =>
+    request(`/leaderboard${limit ? `?limit=${limit}` : ''}`),
 };

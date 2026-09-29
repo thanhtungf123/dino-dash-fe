@@ -735,6 +735,9 @@ export class Runner {
     this.playCount++;
     this.generatedSoundFx.background();
 
+    // @change -> Báo ván mới bắt đầu (leaderboard xin session token cho anti-cheat).
+    document.dispatchEvent(new CustomEvent('game-start'));
+
     if (Runner.audioCues) {
       this.containerEl.setAttribute('title', getA11yString(A11Y_STRINGS.jump));
     }
@@ -1520,6 +1523,8 @@ export class Runner {
   restart() {
     if (!this.raqId) {
       this.playCount++;
+      // @change -> Ván chơi lại cũng bắt đầu mới -> xin session token mới.
+      document.dispatchEvent(new CustomEvent('game-start'));
       this.runningTime = 0;
       this.setPlayStatus(true);
       this.toggleSpeed();

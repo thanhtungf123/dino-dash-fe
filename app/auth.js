@@ -4,6 +4,9 @@ let boxEl = null;
 let onChange = null;
 let currentUser = null;
 
+// Chế độ form: 'login' hoặc 'register'.
+let authMode = 'login';
+
 export function getCurrentUser() {
   return currentUser;
 }
@@ -34,15 +37,18 @@ function renderLoggedIn() {
   boxEl.querySelector('#auth-logout').addEventListener('click', handleLogout);
 }
 
-// Chế độ hiện tại của form: 'login' hoặc 'register'.
-let authMode = 'login';
-
 function renderLoggedOut(prefill = {}) {
   const isRegister = authMode === 'register';
   const title = isRegister ? 'Đăng ký để lưu điểm' : 'Đăng nhập để lưu điểm';
   const submitLabel = isRegister ? 'Xác nhận đăng ký' : 'Đăng nhập';
   const togglePrompt = isRegister ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
   const toggleLabel = isRegister ? 'Đăng nhập' : 'Đăng ký';
+
+  const confirmField = isRegister
+    ? `<input class="auth-input" id="auth-confirm" type="password"
+         placeholder="Nhập lại mật khẩu" autocomplete="new-password"
+         value="${escapeHtml(prefill.confirm || '')}" />`
+    : '';
 
   boxEl.innerHTML = `
     <form class="auth-form" id="auth-form">
@@ -55,7 +61,11 @@ function renderLoggedOut(prefill = {}) {
           placeholder="Mật khẩu"
           autocomplete="${isRegister ? 'new-password' : 'current-password'}"
           value="${escapeHtml(prefill.password || '')}" />
+        ${confirmField}
       </div>
+      <label class="auth-show">
+        <input type="checkbox" id="auth-showpw" /> Hiện mật khẩu
+      </label>
       <div class="auth-actions">
         <button type="submit" class="auth-btn" id="auth-submit-btn">${submitLabel}</button>
       </div>
@@ -72,12 +82,25 @@ function renderLoggedOut(prefill = {}) {
     handleSubmit(authMode);
   });
 
-  // Chuyển đổi giữa Đăng nhập <-> Đăng ký, giữ lại thông tin đã nhập.
+  // Chuyển Đăng nhập <-> Đăng ký, giữ lại thông tin đã nhập.
   boxEl.querySelector('#auth-toggle').addEventListener('click', () => {
     const username = boxEl.querySelector('#auth-username').value;
     const password = boxEl.querySelector('#auth-password').value;
+    const confirmEl = boxEl.querySelector('#auth-confirm');
     authMode = isRegister ? 'login' : 'register';
-    renderLoggedOut({ username, password });
+    renderLoggedOut({
+      username,
+      password,
+      confirm: confirmEl ? confirmEl.value : '',
+    });
+  });
+
+  // Hiện/ẩn mật khẩu.
+  boxEl.querySelector('#auth-showpw').addEventListener('change', e => {
+    const type = e.target.checked ? 'text' : 'password';
+    boxEl
+      .querySelectorAll('#auth-password, #auth-confirm')
+      .forEach(inp => (inp.type = type));
   });
 }
 
@@ -90,9 +113,7 @@ function setMsg(text, isError = true) {
 }
 
 function setBusy(busy) {
-  boxEl
-    .querySelectorAll('button, input')
-    .forEach(el => (el.disabled = busy));
+  boxEl.querySelectorAll('button, input').forEach(el => (el.disabled = busy));
 }
 
 async function handleSubmit(mode) {
@@ -103,8 +124,19 @@ async function handleSubmit(mode) {
     setMsg('Vui lòng nhập đủ tên đăng nhập và mật khẩu.');
     return;
   }
+  if (mode === 'register') {
+    const confirm = boxEl.querySelector('#auth-confirm').value;
+    if (password !== confirm) {
+      setMsg('Mật khẩu nhập lại không khớp.');
+      return;
+    }
+  }
 
+  const submitBtn = boxEl.querySelector('#auth-submit-btn');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.textContent = 'Đang xử lý...';
   setBusy(true);
+
   try {
     const { user } =
       mode === 'register'
@@ -115,6 +147,7 @@ async function handleSubmit(mode) {
     onChange?.(currentUser);
   } catch (err) {
     setBusy(false);
+    submitBtn.textContent = originalLabel;
     setMsg(err.message);
   }
 }

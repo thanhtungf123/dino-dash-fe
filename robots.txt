@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: đổi domain bên dưới thành domain thật sau khi deploy
+Sitemap: https://YOUR-SITE.vercel.app/sitemap.xml
