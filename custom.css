@@ -1,0 +1,289 @@
+/* ---------------------------CUSTOM STYLING---------------------------- */
+
+/* Dino Font by Devfolio */
+
+@font-face {
+  font-family: 'OnchainDino';
+  src: url('extra/OnchainDino-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.trex-game {
+  max-width: 600px;
+  width: 100%;
+  /* Chuyển động mượt khi phóng to / thu nhỏ (bấm F vào/ra arcade). */
+  transition: transform 0.4s ease, margin 0.4s ease;
+}
+
+.trex-game .runner-container {
+  transition: all 0.3s;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: OnchainDino;
+  text-transform: uppercase;
+  color: rgb(122, 122, 122);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+a {
+  font-size: 16px;
+  color: rgb(122, 122, 122);
+}
+
+a:active {
+  scale: 0.95;
+}
+
+/* ------------------- Đăng nhập + Bảng xếp hạng (thêm mới) ------------------- */
+
+.account-box,
+.leaderboard-box {
+  width: 100%;
+  max-width: 600px;
+  /* Font thường dễ đọc cho nội dung; chỉ tiêu đề mới dùng font pixel OnchainDino */
+  font-family: 'Segoe UI', Roboto, system-ui, -apple-system, Arial, sans-serif;
+  color: rgb(122, 122, 122);
+}
+
+/* --- Auth --- */
+.auth-title {
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(122, 122, 122, 0.4);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.auth-fields {
+  display: flex;
+  gap: 12px;
+}
+
+.auth-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid rgba(122, 122, 122, 0.5);
+  border-radius: 6px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: rgb(122, 122, 122);
+}
+
+.auth-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.auth-btn {
+  padding: 8px 20px;
+  border: 1px solid rgb(122, 122, 122);
+  border-radius: 6px;
+  background: rgb(122, 122, 122);
+  color: #111;
+  font-family: inherit;
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.auth-btn:hover {
+  opacity: 0.85;
+}
+
+.auth-btn:active {
+  scale: 0.96;
+}
+
+.auth-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-btn-ghost {
+  background: transparent;
+  color: rgb(122, 122, 122);
+}
+
+.auth-msg {
+  margin: 0;
+  min-height: 16px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.auth-msg-error {
+  color: #d66;
+}
+
+.auth-switch {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: #e8b04b;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-link:hover {
+  opacity: 0.85;
+}
+
+.auth-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  border: 1px solid rgba(122, 122, 122, 0.4);
+  border-radius: 8px;
+  padding: 14px 20px;
+}
+
+.auth-hello {
+  font-size: 14px;
+}
+
+.auth-logout {
+  padding: 6px 16px;
+  font-size: 12px;
+}
+
+/* --- Leaderboard --- */
+.lb-title {
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+.lb-empty {
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.lb-table th,
+.lb-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(122, 122, 122, 0.25);
+}
+
+.lb-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.lb-rank {
+  width: 40px;
+  text-align: center;
+}
+
+.lb-score {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-me {
+  color: #e8b04b;
+  font-weight: bold;
+}
+
+/* Mobile */
+@media screen and (max-width: 600px) {
+  .auth-fields {
+    flex-direction: column;
+  }
+}
+
+/* Chế độ toàn màn hình (bấm F): phóng to game và đưa cả trang vào giữa màn hình.
+   Tiêu đề, khung đăng nhập và bảng xếp hạng VẪN hiển thị, không bị đè. */
+body.arcade-mode {
+  overflow-x: hidden;
+}
+
+body.arcade-mode .container {
+  min-height: 100vh;
+  justify-content: center;
+}
+
+body.arcade-mode .trex-game {
+  transform: scale(2.5);
+  transform-origin: center;
+  /* Chừa khoảng trống cho phần game phóng to (cao thêm ~180px) để không đè
+     lên tiêu đề ở trên và khung đăng nhập/bảng xếp hạng ở dưới. */
+  margin: 95px 0;
+}
+
+/* Màn hình nhỏ: giảm mức phóng to để game không tràn ngang. */
+@media screen and (max-width: 900px) {
+  body.arcade-mode .trex-game {
+    transform: scale(1.25);
+    margin: 30px 0;
+  }
+}

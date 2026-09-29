@@ -1,0 +1,27 @@
+/* ------ THEME NGÀY / ĐÊM CHO GAME T-REX ------ */
+
+/* Ban ngày (mặc định): nền trắng, khủng long màu tối.
+   Không phụ thuộc dark mode của hệ thống — luôn bắt đầu ban ngày. */
+html,
+body {
+  background-color: #fff;
+}
+
+/* Hiệu ứng chuyển cảnh ngày <-> đêm mượt: animate filter khi bật/tắt .inverted.
+   invert(0) là trạng thái ban ngày, transition giúp màu cả trang đổi từ từ. */
+html {
+  filter: invert(0);
+  transition: filter 0.7s ease-in-out;
+}
+
+/* Ban đêm: khi đủ điểm, class .inverted được thêm vào <html> ->
+   đảo màu TOÀN TRANG một cách đồng nhất (nền đen, khủng long sáng,
+   mặt trăng + sao hiện ra). */
+.inverted {
+  background-color: #fff;
+  filter: invert(1);
+}
+
+.inverted body {
+  background-color: #fff;
+}
