@@ -7,4 +7,4 @@ const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
 
 export const API_BASE = isLocal
   ? 'http://localhost:3001/api'
-  : 'https://YOUR-BACKEND.up.railway.app/api';
+  : 'https://dino-dash-be-production.up.railway.app/api';
