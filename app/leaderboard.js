@@ -1,6 +1,7 @@
 import { api } from './api.js';
 
 let boxEl = null;
+let hideTitle = false; // ẩn tiêu đề "Bảng xếp hạng — Top N" (dùng cho trang riêng đã có h1)
 
 /** Escape để tránh XSS khi hiển thị tên người dùng. */
 function escapeHtml(str) {
@@ -20,7 +21,7 @@ function escapeHtml(str) {
 function render(list, me) {
   if (!list.length) {
     boxEl.innerHTML = `
-      <h2 class="lb-title">Bảng xếp hạng</h2>
+      ${hideTitle ? '' : '<h2 class="lb-title">Bảng xếp hạng</h2>'}
       <p class="lb-empty">Chưa có ai ghi điểm. Hãy là người đầu tiên!</p>`;
     return;
   }
@@ -52,7 +53,7 @@ function render(list, me) {
       : '';
 
   boxEl.innerHTML = `
-    <h2 class="lb-title">Bảng xếp hạng — Top ${list.length}</h2>
+    ${hideTitle ? '' : `<h2 class="lb-title">Bảng xếp hạng — Top ${list.length}</h2>`}
     <table class="lb-table">
       <thead>
         <tr><th>#</th><th>Người chơi</th><th>Điểm</th></tr>
@@ -76,6 +77,7 @@ export async function loadLeaderboard(limit) {
   }
 }
 
-export function initLeaderboard(el) {
+export function initLeaderboard(el, opts) {
   boxEl = el;
+  hideTitle = opts?.hideTitle || false;
 }

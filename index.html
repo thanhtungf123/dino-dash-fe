@@ -65,8 +65,12 @@
     <!-- Nút nhảy/cúi cho mobile (ẩn trên desktop) -->
     <div class="mobile-controls" id="mobile-controls">
       <div class="mc-move">
-        <button type="button" class="mc-btn mc-duck" id="btn-duck">⬇ Cúi</button>
-        <button type="button" class="mc-btn mc-jump" id="btn-jump">⬆ Nhảy</button>
+        <button type="button" class="mc-btn mc-duck" id="btn-duck" aria-label="Cúi">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v13" /><path d="M6 12l6 6 6-6" /></svg>
+        </button>
+        <button type="button" class="mc-btn mc-jump" id="btn-jump" aria-label="Nhảy">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6" /><path d="M6 12l6-6 6 6" /></svg>
+        </button>
       </div>
     </div>
 

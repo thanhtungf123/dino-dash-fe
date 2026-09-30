@@ -1,5 +1,36 @@
 import { api } from './api.js';
 
+// --- Hamburger menu cho mobile: chèn nút ☰ và bật/tắt menu ---
+(function setupHamburger() {
+  document.querySelectorAll('.site-nav').forEach(nav => {
+    const logo = nav.querySelector('.site-logo');
+    const menu = nav.querySelector('.nav-menu');
+    if (!menu || nav.querySelector('.nav-toggle')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'nav-toggle';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Mở menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '☰';
+    if (logo) logo.insertAdjacentElement('afterend', btn);
+    else nav.insertBefore(btn, menu);
+
+    const close = () => {
+      nav.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.innerHTML = '☰';
+    };
+    btn.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.innerHTML = open ? '✕' : '☰';
+    });
+    // Bấm vào 1 mục -> đóng menu.
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+  });
+})();
+
 function escapeHtml(str) {
   return String(str ?? '').replace(
     /[&<>"']/g,

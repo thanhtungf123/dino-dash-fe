@@ -41,7 +41,9 @@
 
     <script type="module">
       import { initLeaderboard, loadLeaderboard } from './app/leaderboard.js';
-      initLeaderboard(document.getElementById('leaderboard-box'));
+      initLeaderboard(document.getElementById('leaderboard-box'), {
+        hideTitle: true,
+      });
       loadLeaderboard(50);
     </script>
   </body>
