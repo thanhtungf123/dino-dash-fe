@@ -2,42 +2,15 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light" />
     <meta name="robots" content="noindex" />
-    <title>Cài đặt website — Dino Dash</title>
-    <link rel="icon" href="/favicon.ico" />
-    <script type="module" src="app/site-settings.js"></script>
-    <link rel="stylesheet" href="trex.css" />
-    <link rel="stylesheet" href="custom.css" />
+    <!-- Trang Cài đặt web đã gộp vào Quản trị -> chuyển hướng -->
+    <meta http-equiv="refresh" content="0; url=admin.html" />
+    <title>Chuyển hướng… — Dino Dash</title>
+    <script>
+      location.replace('admin.html');
+    </script>
   </head>
   <body>
-    <nav class="site-nav">
-      <a class="site-logo" href="index.html">🦖 Dino Dash</a>
-      <ul class="nav-menu">
-        <li><a href="index.html">Chơi ngay</a></li>
-        <li><a href="how-to-play.html">Cách chơi</a></li>
-        <li><a href="leaderboard.html">Bảng xếp hạng</a></li>
-        <li><a href="rewards.html">Phần thưởng</a></li>
-        <li><a href="about.html">Giới thiệu</a></li>
-        <li><a href="profile.html">Hồ sơ</a></li>
-        <li><a href="admin.html">Quản trị</a></li>
-        <li><a href="admin-settings.html" aria-current="page">Cài đặt web</a></li>
-      </ul>
-    </nav>
-
-    <main class="page">
-      <h1 class="page-title">Cài đặt website</h1>
-      <div id="settings-root">
-        <p class="lb-empty">Đang kiểm tra quyền…</p>
-      </div>
-      <p class="page-back"><a href="admin.html">← Về quản trị</a></p>
-    </main>
-
-    <footer class="site-footer">
-      <p>© 2026 Dino Dash · Game khủng long chạy vượt chướng ngại vật.</p>
-    </footer>
-
-    <script type="module" src="app/admin-settings.js"></script>
+    <p>Đang chuyển tới <a href="admin.html">trang Quản trị</a>…</p>
   </body>
 </html>

@@ -26,14 +26,16 @@ function escapeHtml(str) {
 
   const siteName = data.siteName || 'Dino Dash';
 
-  // Logo (nav): dùng ảnh nếu có, ngược lại hiện tên website.
+  // Logo (nav): hiện ảnh logo KÈM tên website; nếu chưa có logo thì hiện tên (kèm emoji).
   document.querySelectorAll('.site-logo').forEach(el => {
     if (data.logoUrl) {
       el.innerHTML = `<img class="logo-img" src="${escapeHtml(
         data.logoUrl
-      )}" alt="${escapeHtml(siteName)}" />`;
+      )}" alt="${escapeHtml(siteName)}" /><span class="logo-name">${escapeHtml(
+        siteName
+      )}</span>`;
     } else {
-      el.textContent = `🦖 ${siteName}`;
+      el.innerHTML = `<span class="logo-name">🦖 ${escapeHtml(siteName)}</span>`;
     }
   });
 
