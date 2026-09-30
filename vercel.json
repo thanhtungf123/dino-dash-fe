@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/favicon.ico",
+      "destination": "https://dino-dash-be-production.up.railway.app/favicon.ico"
+    }
+  ]
+}

@@ -50,4 +50,29 @@ export const api = {
 
   updateContent: (key, data) =>
     request(`/content/${key}`, { method: 'PUT', body: { data } }),
+
+  // Cài đặt website (favicon / logo / tên / footer).
+  getSettings: () => request('/settings'),
+
+  updateSettings: data =>
+    request('/settings', { method: 'PUT', body: { data } }),
+
+  // Upload ảnh (favicon/logo) — dùng FormData nên gọi fetch trực tiếp.
+  uploadImage: async file => {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`${API_BASE}/settings/upload`, {
+      method: 'POST',
+      credentials: 'include',
+      body: fd,
+    });
+    let data = null;
+    try {
+      data = await res.json();
+    } catch {
+      /* không phải JSON */
+    }
+    if (!res.ok) throw new Error(data?.error || `Lỗi ${res.status}`);
+    return data; // { url }
+  },
 };

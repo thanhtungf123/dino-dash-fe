@@ -4,11 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <title>Bảng xếp hạng Dino Dash — Top người chơi điểm cao</title>
-    <meta
-      name="description"
-      content="Bảng xếp hạng Dino Dash: top người chơi có điểm cao nhất. Đăng nhập, cày điểm và leo lên đầu bảng để nhận thưởng hàng tháng."
-    />
+    <meta name="robots" content="noindex" />
+    <title>Cài đặt website — Dino Dash</title>
     <link rel="icon" href="/favicon.ico" />
     <script type="module" src="app/site-settings.js"></script>
     <link rel="stylesheet" href="trex.css" />
@@ -20,29 +17,27 @@
       <ul class="nav-menu">
         <li><a href="index.html">Chơi ngay</a></li>
         <li><a href="how-to-play.html">Cách chơi</a></li>
-        <li><a href="leaderboard.html" aria-current="page">Bảng xếp hạng</a></li>
+        <li><a href="leaderboard.html">Bảng xếp hạng</a></li>
         <li><a href="rewards.html">Phần thưởng</a></li>
         <li><a href="about.html">Giới thiệu</a></li>
         <li><a href="profile.html">Hồ sơ</a></li>
+        <li><a href="admin.html">Quản trị</a></li>
+        <li><a href="admin-settings.html" aria-current="page">Cài đặt web</a></li>
       </ul>
     </nav>
 
     <main class="page">
-      <h1 class="page-title">Bảng xếp hạng</h1>
-      <div class="leaderboard-box" id="leaderboard-box">
-        <p class="lb-empty">Đang tải bảng xếp hạng…</p>
+      <h1 class="page-title">Cài đặt website</h1>
+      <div id="settings-root">
+        <p class="lb-empty">Đang kiểm tra quyền…</p>
       </div>
-      <p class="page-back"><a href="index.html">← Về trang chơi</a></p>
+      <p class="page-back"><a href="admin.html">← Về quản trị</a></p>
     </main>
 
     <footer class="site-footer">
       <p>© 2026 Dino Dash · Game khủng long chạy vượt chướng ngại vật.</p>
     </footer>
 
-    <script type="module">
-      import { initLeaderboard, loadLeaderboard } from './app/leaderboard.js';
-      initLeaderboard(document.getElementById('leaderboard-box'));
-      loadLeaderboard(50);
-    </script>
+    <script type="module" src="app/admin-settings.js"></script>
   </body>
 </html>
