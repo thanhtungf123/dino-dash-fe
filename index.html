@@ -15,6 +15,7 @@
   <meta name="keywords"
     content="trò chơi khủng long, game khủng long, game khủng long mất mạng, dino dash, t-rex runner, chơi game online" />
   <link rel="canonical" href="https://trochoikhunglong.com/" />
+  <meta name="robots" content="index, follow" />
 
   <!-- Open Graph (hiển thị đẹp khi chia sẻ link) -->
   <meta property="og:type" content="website" />
@@ -100,7 +101,8 @@
       </p>
     </section>
 
-    <section class="content-section">
+    <!-- Nội dung trang chủ (admin soạn, đóng khung). JS thay bằng nội dung từ DB. -->
+    <section class="content-section home-article" id="home-content">
       <p>
         <strong>Dino Dash</strong> là game khủng long chạy vượt chướng ngại vật,
         miễn phí trên trình duyệt.
@@ -109,6 +111,11 @@
       </p>
     </section>
   </main>
+
+  <script type="module">
+    import { initContentPage, renderHome } from './app/content.js';
+    initContentPage('home', document.getElementById('home-content'), renderHome);
+  </script>
 
   <footer class="site-footer">
     <p>© 2026 Dino Dash · Game khủng long chạy vượt chướng ngại vật.</p>

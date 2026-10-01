@@ -67,6 +67,16 @@ export function renderRewards(el, data) {
     </section>`;
 }
 
+export function renderHome(el, data) {
+  if (!data || (!data.title && !data.body)) {
+    el.style.display = 'none';
+    return;
+  }
+  el.innerHTML = `
+    ${data.title ? `<h2>${escapeHtml(data.title)}</h2>` : ''}
+    ${paragraphs(data.body)}`;
+}
+
 /** Tải nội dung từ API và render; nếu lỗi thì giữ nội dung tĩnh sẵn có. */
 export async function initContentPage(key, el, renderer) {
   try {

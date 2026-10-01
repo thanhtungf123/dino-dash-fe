@@ -59,6 +59,32 @@ async function renderAbout() {
   });
 }
 
+// ==================== NỘI DUNG TRANG CHỦ ====================
+async function renderHomeContent() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  const home = (await api.getContent('home')).data || {};
+  content.innerHTML = `
+    <form class="admin-form" id="form-home">
+      <h2>Nội dung trang chủ</h2>
+      <label>Tiêu đề
+        <input id="hm-title" value="${escapeHtml(home.title || '')}" />
+      </label>
+      <label>Nội dung <small>(cách 1 dòng trống = đoạn mới)</small>
+        <textarea id="hm-body" rows="8">${escapeHtml(home.body || '')}</textarea>
+      </label>
+      <div class="admin-actions">
+        <button class="auth-btn" type="submit">Lưu nội dung trang chủ</button>
+        <span class="admin-status" id="st-home"></span>
+      </div>
+    </form>`;
+  document.getElementById('form-home').addEventListener('submit', e => {
+    e.preventDefault();
+    runSave('st-home', () =>
+      api.updateContent('home', { title: val('hm-title'), body: val('hm-body') })
+    );
+  });
+}
+
 // ==================== PHẦN THƯỞNG ====================
 async function renderRewards() {
   content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
@@ -264,10 +290,129 @@ async function handleUpload(kind, e) {
   e.target.value = '';
 }
 
+// ==================== QUẢN LÝ TRANG ====================
+async function renderPages() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  let pages;
+  try {
+    ({ pages } = await api.pages());
+  } catch (err) {
+    content.innerHTML = `<p class="lb-empty">Lỗi: ${escapeHtml(err.message)}</p>`;
+    return;
+  }
+  showPagesList(pages);
+}
+
+function showPagesList(pages) {
+  const rows = pages.length
+    ? pages
+        .map(
+          p => `
+      <div class="page-row" data-id="${p.id}">
+        <div class="page-row-info">
+          <strong>${escapeHtml(p.title)}</strong>
+          <a class="page-slug" href="/${escapeHtml(p.slug)}" target="_blank">/${escapeHtml(p.slug)}</a>
+          ${p.noindex ? '<span class="page-tag">noindex</span>' : ''}
+        </div>
+        <div class="page-row-actions">
+          <button type="button" class="auth-btn auth-btn-ghost" data-act="edit">Sửa</button>
+          <button type="button" class="auth-btn auth-btn-ghost page-del" data-act="del">Xóa</button>
+        </div>
+      </div>`
+        )
+        .join('')
+    : '<p class="lb-empty">Chưa có trang nào.</p>';
+
+  content.innerHTML = `
+    <div class="admin-form">
+      <h2>Quản lý trang</h2>
+      <p class="admin-hello">
+        Tạo các trang như Liên hệ, Chính sách bảo mật... Mỗi trang có URL riêng
+        (vd <code>/lien-he</code>) và cài đặt SEO riêng.
+      </p>
+      <div id="pages-list">${rows}</div>
+      <button type="button" class="auth-btn" id="page-new">+ Tạo trang mới</button>
+    </div>`;
+
+  document
+    .getElementById('page-new')
+    .addEventListener('click', () => showPageForm(null));
+  content.querySelectorAll('.page-row').forEach(row => {
+    const id = row.dataset.id;
+    row.querySelector('[data-act="edit"]').addEventListener('click', () => {
+      showPageForm(pages.find(x => x.id === id));
+    });
+    row.querySelector('[data-act="del"]').addEventListener('click', async () => {
+      if (!confirm('Xóa trang này?')) return;
+      try {
+        await api.deletePage(id);
+        renderPages();
+      } catch (err) {
+        alert('Lỗi: ' + err.message);
+      }
+    });
+  });
+}
+
+function showPageForm(page) {
+  const isNew = !page;
+  content.innerHTML = `
+    <form class="admin-form" id="form-page">
+      <h2>${isNew ? 'Tạo trang mới' : 'Sửa trang'}</h2>
+      <label>Đường dẫn (slug) <small>(vd: lien-he → URL /lien-he)</small>
+        <input id="pg-slug" value="${escapeHtml(page?.slug || '')}"
+          ${isNew ? 'placeholder="lien-he"' : 'readonly'} />
+      </label>
+      <label>Tiêu đề
+        <input id="pg-title" value="${escapeHtml(page?.title || '')}" />
+      </label>
+      <label>Mô tả SEO <small>(meta description)</small>
+        <textarea id="pg-desc" rows="2">${escapeHtml(page?.metaDescription || '')}</textarea>
+      </label>
+      <label>Nội dung <small>(cách 1 dòng trống = đoạn mới)</small>
+        <textarea id="pg-body" rows="10">${escapeHtml(page?.body || '')}</textarea>
+      </label>
+      <label class="auth-show">
+        <input type="checkbox" id="pg-noindex" ${page?.noindex ? 'checked' : ''} />
+        Ẩn khỏi Google (noindex)
+      </label>
+      <div class="admin-actions">
+        <button class="auth-btn" type="submit">Lưu trang</button>
+        <button type="button" class="auth-btn auth-btn-ghost" id="pg-cancel">Hủy</button>
+        <span class="admin-status" id="st-page"></span>
+      </div>
+    </form>`;
+
+  document.getElementById('pg-cancel').addEventListener('click', renderPages);
+  document.getElementById('form-page').addEventListener('submit', async e => {
+    e.preventDefault();
+    const data = {
+      slug: val('pg-slug'),
+      title: val('pg-title'),
+      metaDescription: val('pg-desc'),
+      body: val('pg-body'),
+      noindex: document.getElementById('pg-noindex').checked,
+    };
+    const st = document.getElementById('st-page');
+    st.textContent = 'Đang lưu…';
+    st.className = 'admin-status';
+    try {
+      if (isNew) await api.createPage(data);
+      else await api.updatePage(page.id, data);
+      renderPages();
+    } catch (err) {
+      st.textContent = '✗ ' + err.message;
+      st.classList.add('err');
+    }
+  });
+}
+
 // ==================== KHUNG + SIDEBAR ====================
 const SECTIONS = [
+  { key: 'home', label: 'Nội dung trang chủ', render: renderHomeContent },
   { key: 'about', label: 'Giới thiệu', render: renderAbout },
   { key: 'rewards', label: 'Phần thưởng', render: renderRewards },
+  { key: 'pages', label: 'Quản lý trang', render: renderPages },
   { key: 'settings', label: 'Cài đặt website', render: renderSettings },
 ];
 
@@ -310,7 +455,7 @@ async function boot() {
   root.querySelectorAll('.admin-navbtn').forEach(btn =>
     btn.addEventListener('click', () => selectSection(btn.dataset.key))
   );
-  selectSection('about');
+  selectSection('home');
 }
 
 boot();

@@ -57,6 +57,12 @@ export const api = {
   updateSettings: data =>
     request('/settings', { method: 'PUT', body: { data } }),
 
+  // Quản lý trang tùy biến (admin).
+  pages: () => request('/pages'),
+  createPage: data => request('/pages', { method: 'POST', body: data }),
+  updatePage: (id, data) => request(`/pages/${id}`, { method: 'PUT', body: data }),
+  deletePage: id => request(`/pages/${id}`, { method: 'DELETE' }),
+
   // Upload ảnh (favicon/logo) — dùng FormData nên gọi fetch trực tiếp.
   uploadImage: async file => {
     const fd = new FormData();

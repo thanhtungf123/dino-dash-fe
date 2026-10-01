@@ -565,6 +565,18 @@ kbd {
   background: rgba(232, 176, 75, 0.06);
 }
 
+/* Khung nội dung trang chủ (admin soạn) */
+.home-article {
+  border: 1px solid rgba(122, 122, 122, 0.25);
+  border-radius: 12px;
+  padding: 24px 28px;
+  background: #fafafa;
+}
+
+.home-article h2 {
+  margin-top: 0;
+}
+
 .prize-grid {
   display: flex;
   justify-content: center;
@@ -1034,6 +1046,50 @@ kbd {
 .admin-content {
   flex: 1;
   min-width: 0;
+}
+
+/* Danh sách trang tùy biến trong admin */
+.page-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(122, 122, 122, 0.25);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.page-row-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.page-slug {
+  color: #2f80ed;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.page-tag {
+  font-size: 11px;
+  background: rgba(214, 102, 102, 0.15);
+  color: #c0392b;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.page-row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.page-row-actions .auth-btn {
+  padding: 6px 14px;
+  font-size: 12px;
 }
 
 @media (max-width: 700px) {
