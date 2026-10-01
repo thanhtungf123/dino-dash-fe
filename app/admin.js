@@ -19,6 +19,26 @@ function escapeHtml(str) {
 const val = id => document.getElementById(id).value;
 let content = null; // vùng nội dung bên phải
 
+// Tạo editor Quill (giàu định dạng) trên 1 div; đọc HTML qua q.root.innerHTML.
+function mountQuill(containerId, initialHtml) {
+  const q = new Quill('#' + containerId, {
+    theme: 'snow',
+    placeholder: 'Soạn nội dung...',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, 4, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link', 'image'],
+        [{ align: [] }],
+        ['clean'],
+      ],
+    },
+  });
+  if (initialHtml) q.clipboard.dangerouslyPasteHTML(initialHtml);
+  return q;
+}
+
 async function runSave(statusId, fn) {
   const st = document.getElementById(statusId);
   st.textContent = 'Đang lưu…';
@@ -43,18 +63,18 @@ async function renderAbout() {
       <label>Tiêu đề
         <input id="ab-title" value="${escapeHtml(about.title || '')}" />
       </label>
-      <label>Nội dung <small>(cách 1 dòng trống = đoạn mới)</small>
-        <textarea id="ab-body" rows="10">${escapeHtml(about.body || '')}</textarea>
-      </label>
+      <label>Nội dung</label>
+      <div class="rte-wrap"><div id="ab-editor"></div></div>
       <div class="admin-actions">
         <button class="auth-btn" type="submit">Lưu Giới thiệu</button>
         <span class="admin-status" id="st-about"></span>
       </div>
     </form>`;
+  const q = mountQuill('ab-editor', about.body || '');
   document.getElementById('form-about').addEventListener('submit', e => {
     e.preventDefault();
     runSave('st-about', () =>
-      api.updateContent('about', { title: val('ab-title'), body: val('ab-body') })
+      api.updateContent('about', { title: val('ab-title'), body: q.root.innerHTML })
     );
   });
 }
@@ -69,18 +89,18 @@ async function renderHomeContent() {
       <label>Tiêu đề
         <input id="hm-title" value="${escapeHtml(home.title || '')}" />
       </label>
-      <label>Nội dung <small>(cách 1 dòng trống = đoạn mới)</small>
-        <textarea id="hm-body" rows="8">${escapeHtml(home.body || '')}</textarea>
-      </label>
+      <label>Nội dung</label>
+      <div class="rte-wrap"><div id="hm-editor"></div></div>
       <div class="admin-actions">
         <button class="auth-btn" type="submit">Lưu nội dung trang chủ</button>
         <span class="admin-status" id="st-home"></span>
       </div>
     </form>`;
+  const q = mountQuill('hm-editor', home.body || '');
   document.getElementById('form-home').addEventListener('submit', e => {
     e.preventDefault();
     runSave('st-home', () =>
-      api.updateContent('home', { title: val('hm-title'), body: val('hm-body') })
+      api.updateContent('home', { title: val('hm-title'), body: q.root.innerHTML })
     );
   });
 }
@@ -369,9 +389,8 @@ function showPageForm(page) {
       <label>Mô tả SEO <small>(meta description)</small>
         <textarea id="pg-desc" rows="2">${escapeHtml(page?.metaDescription || '')}</textarea>
       </label>
-      <label>Nội dung <small>(cách 1 dòng trống = đoạn mới)</small>
-        <textarea id="pg-body" rows="10">${escapeHtml(page?.body || '')}</textarea>
-      </label>
+      <label>Nội dung</label>
+      <div class="rte-wrap"><div id="pg-editor"></div></div>
       <label class="auth-show">
         <input type="checkbox" id="pg-noindex" ${page?.noindex ? 'checked' : ''} />
         Ẩn khỏi Google (noindex)
@@ -383,6 +402,7 @@ function showPageForm(page) {
       </div>
     </form>`;
 
+  const pgQuill = mountQuill('pg-editor', page?.body || '');
   document.getElementById('pg-cancel').addEventListener('click', renderPages);
   document.getElementById('form-page').addEventListener('submit', async e => {
     e.preventDefault();
@@ -390,7 +410,7 @@ function showPageForm(page) {
       slug: val('pg-slug'),
       title: val('pg-title'),
       metaDescription: val('pg-desc'),
-      body: val('pg-body'),
+      body: pgQuill.root.innerHTML,
       noindex: document.getElementById('pg-noindex').checked,
     };
     const st = document.getElementById('st-page');

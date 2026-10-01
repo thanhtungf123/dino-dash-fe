@@ -24,6 +24,14 @@ function paragraphs(text) {
     .join('');
 }
 
+// Nội dung từ editor đã là HTML (backend lọc an toàn) -> dùng trực tiếp.
+// Nếu là text thuần (dữ liệu cũ) -> tách đoạn.
+function renderBody(text) {
+  const s = String(text || '');
+  if (/<[a-z][\s\S]*>/i.test(s)) return s;
+  return paragraphs(s);
+}
+
 // Mỗi dòng thành một mục <li>.
 function bullets(text) {
   return String(text || '')
@@ -38,7 +46,7 @@ export function renderAbout(el, data) {
   if (!data) return; // giữ nội dung tĩnh mặc định trong HTML
   el.innerHTML = `
     <h1 class="page-title">${escapeHtml(data.title || 'Giới thiệu')}</h1>
-    <section class="content-section">${paragraphs(data.body)}</section>`;
+    <section class="content-section rte">${renderBody(data.body)}</section>`;
 }
 
 export function renderRewards(el, data) {
@@ -74,7 +82,7 @@ export function renderHome(el, data) {
   }
   el.innerHTML = `
     ${data.title ? `<h2>${escapeHtml(data.title)}</h2>` : ''}
-    ${paragraphs(data.body)}`;
+    <div class="rte">${renderBody(data.body)}</div>`;
 }
 
 /** Tải nội dung từ API và render; nếu lỗi thì giữ nội dung tĩnh sẵn có. */
