@@ -91,3 +91,53 @@ function escapeHtml(str) {
     if (html) footer.innerHTML = html;
   }
 })();
+
+// --- SEO: áp title + thẻ meta cho từng trang theo cấu hình của admin ---
+// Các trang chính là file tĩnh nên không SSR được; ta ghi đè title/meta bằng JS.
+// (Google có render JS nên vẫn nhận; trình quét không chạy JS sẽ thấy thẻ mặc định.)
+const PAGE_BY_PATH = {
+  '': 'home',
+  'index.html': 'home',
+  'leaderboard.html': 'leaderboard',
+  'rewards.html': 'rewards',
+  'about.html': 'about',
+  'how-to-play.html': 'how-to-play',
+  'profile.html': 'profile',
+};
+
+/** Đặt (hoặc tạo) một thẻ <meta> trong <head>. */
+function setMeta(attr, name, value) {
+  let el = document.head.querySelector(`meta[${attr}="${name}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, name);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', value);
+}
+
+(async () => {
+  const seg = (location.pathname.split('/').pop() || '').toLowerCase();
+  const key = PAGE_BY_PATH[seg];
+  if (!key) return;
+
+  let seo;
+  try {
+    ({ data: seo } = await api.getContent('seo'));
+  } catch {
+    return; // lỗi mạng -> giữ title/meta tĩnh mặc định
+  }
+  const cfg = seo && seo[key];
+  if (!cfg) return;
+
+  if (cfg.title) {
+    document.title = cfg.title;
+    setMeta('property', 'og:title', cfg.title);
+    setMeta('name', 'twitter:title', cfg.title);
+  }
+  if (cfg.description) {
+    setMeta('name', 'description', cfg.description);
+    setMeta('property', 'og:description', cfg.description);
+    setMeta('name', 'twitter:description', cfg.description);
+  }
+})();

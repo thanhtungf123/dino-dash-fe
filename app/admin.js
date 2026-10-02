@@ -732,6 +732,67 @@ async function handleUserAction(act, { id, name }) {
   }
 }
 
+// ==================== SEO: TIÊU ĐỀ & THẺ META ====================
+const SEO_PAGES = [
+  { key: 'home', label: 'Trang chủ (index.html)' },
+  { key: 'leaderboard', label: 'Bảng xếp hạng' },
+  { key: 'rewards', label: 'Phần thưởng' },
+  { key: 'about', label: 'Giới thiệu' },
+  { key: 'how-to-play', label: 'Cách chơi' },
+  { key: 'profile', label: 'Hồ sơ' },
+];
+
+async function renderSeo() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  let seo = {};
+  try {
+    seo = (await api.getContent('seo')).data || {};
+  } catch {
+    /* chưa có -> dùng rỗng */
+  }
+
+  content.innerHTML = `
+    <form class="admin-form" id="form-seo">
+      <h2>SEO — Tiêu đề &amp; thẻ meta</h2>
+      <p class="admin-hello">
+        Đặt tiêu đề (title) và mô tả (meta description) cho từng trang chính.
+        Để trống = giữ nguyên nội dung mặc định có sẵn trong trang.
+      </p>
+      ${SEO_PAGES.map(p => {
+        const d = seo[p.key] || {};
+        return `
+        <fieldset class="seo-page">
+          <legend>${escapeHtml(p.label)}</legend>
+          <label>Tiêu đề (title)
+            <input id="seo-${p.key}-title" maxlength="200" value="${escapeHtml(
+              d.title || ''
+            )}" />
+          </label>
+          <label>Mô tả (meta description) <small>(~150–160 ký tự)</small>
+            <textarea id="seo-${p.key}-desc" rows="2" maxlength="320">${escapeHtml(
+              d.description || ''
+            )}</textarea>
+          </label>
+        </fieldset>`;
+      }).join('')}
+      <div class="admin-actions">
+        <button class="auth-btn" type="submit">Lưu SEO</button>
+        <span class="admin-status" id="st-seo"></span>
+      </div>
+    </form>`;
+
+  document.getElementById('form-seo').addEventListener('submit', e => {
+    e.preventDefault();
+    const data = {};
+    SEO_PAGES.forEach(p => {
+      const title = val(`seo-${p.key}-title`).trim();
+      const description = val(`seo-${p.key}-desc`).trim();
+      if (title || description) data[p.key] = { title, description };
+    });
+    runSave('st-seo', () => api.updateContent('seo', data));
+  });
+}
+
 // ==================== KHUNG + SIDEBAR ====================
 const SECTIONS = [
   { key: 'seasons', label: 'Quản lý Top & Thưởng', render: renderSeasons },
@@ -740,6 +801,7 @@ const SECTIONS = [
   { key: 'about', label: 'Giới thiệu', render: renderAbout },
   { key: 'rewards', label: 'Phần thưởng', render: renderRewards },
   { key: 'pages', label: 'Quản lý trang', render: renderPages },
+  { key: 'seo', label: 'SEO / Tiêu đề trang', render: renderSeo },
   { key: 'settings', label: 'Cài đặt website', render: renderSettings },
 ];
 
