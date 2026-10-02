@@ -1,6 +1,7 @@
 import { Runner } from './resources/dino_game/offline.js';
 import { initAuth, getCurrentUser, updateBestScore } from './app/auth.js';
 import { initLeaderboard, loadLeaderboard } from './app/leaderboard.js';
+import { loadPrevSeason } from './app/prev-season.js';
 import { api } from './app/api.js';
 
 window.addEventListener('load', async () => {
@@ -71,6 +72,9 @@ window.addEventListener('load', async () => {
   const leaderboardBox = document.getElementById('leaderboard-box');
 
   initLeaderboard(leaderboardBox);
+
+  // Top 3 tháng trước (đã chốt) — tải một lần, không đụng tới bảng tháng này.
+  loadPrevSeason(document.getElementById('prev-season-box'));
 
   // Mỗi khi đăng nhập/đăng xuất -> tải lại bảng xếp hạng.
   await initAuth(accountBox, {

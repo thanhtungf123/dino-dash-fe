@@ -25,6 +25,24 @@ function escapeHtml(str) {
   );
 }
 
+/** Màn hình khi tài khoản bị cấm do gian lận. */
+function renderBanned(message) {
+  currentUser = null;
+  boxEl.innerHTML = `
+    <div class="auth-banned">
+      <div class="auth-banned-icon">🚫</div>
+      <p class="auth-banned-msg">${escapeHtml(
+        message || 'Tài khoản của bạn đã bị cấm khỏi hệ thống do gian lận điểm.'
+      )}</p>
+      <button type="button" class="auth-btn auth-btn-ghost" id="auth-banned-ok">Đã hiểu</button>
+    </div>`;
+  boxEl.querySelector('#auth-banned-ok').addEventListener('click', () => {
+    authMode = 'login';
+    renderLoggedOut();
+  });
+  onChange?.(null);
+}
+
 function renderLoggedIn() {
   boxEl.innerHTML = `
     <div class="auth-status">
@@ -146,6 +164,10 @@ async function handleSubmit(mode) {
     renderLoggedIn();
     onChange?.(currentUser);
   } catch (err) {
+    if (err.banned) {
+      renderBanned(err.message);
+      return;
+    }
     setBusy(false);
     submitBtn.textContent = originalLabel;
     setMsg(err.message);
@@ -187,8 +209,12 @@ export async function initAuth(el, { onAuthChange } = {}) {
     const { user } = await api.me();
     currentUser = user;
     renderLoggedIn();
-  } catch {
+  } catch (err) {
     currentUser = null;
+    if (err.banned) {
+      renderBanned(err.message);
+      return; // renderBanned đã gọi onChange(null)
+    }
     renderLoggedOut();
   }
   onChange?.(currentUser);

@@ -2,6 +2,7 @@ import { api } from './api.js';
 
 let boxEl = null;
 let hideTitle = false; // ẩn tiêu đề "Bảng xếp hạng — Top N" (dùng cho trang riêng đã có h1)
+let monthLabel = ''; // nhãn tháng hiện tại, vd "10/2026"
 
 /** Escape để tránh XSS khi hiển thị tên người dùng. */
 function escapeHtml(str) {
@@ -18,10 +19,15 @@ function escapeHtml(str) {
   );
 }
 
+function titleText(suffix) {
+  const month = monthLabel ? ` tháng ${monthLabel}` : '';
+  return `Bảng xếp hạng${month}${suffix || ''}`;
+}
+
 function render(list, me) {
   if (!list.length) {
     boxEl.innerHTML = `
-      ${hideTitle ? '' : '<h2 class="lb-title">Bảng xếp hạng</h2>'}
+      ${hideTitle ? '' : `<h2 class="lb-title">${titleText()}</h2>`}
       <p class="lb-empty">Chưa có ai ghi điểm. Hãy là người đầu tiên!</p>`;
     return;
   }
@@ -53,7 +59,7 @@ function render(list, me) {
       : '';
 
   boxEl.innerHTML = `
-    ${hideTitle ? '' : `<h2 class="lb-title">Bảng xếp hạng — Top ${list.length}</h2>`}
+    ${hideTitle ? '' : `<h2 class="lb-title">${titleText(` — Top ${list.length}`)}</h2>`}
     <table class="lb-table">
       <thead>
         <tr><th>#</th><th>Người chơi</th><th>Điểm</th></tr>
@@ -66,7 +72,8 @@ function render(list, me) {
 export async function loadLeaderboard(limit) {
   if (!boxEl) return;
   try {
-    const { leaderboard, me } = await api.leaderboard(limit);
+    const { leaderboard, me, monthLabel: label } = await api.leaderboard(limit);
+    monthLabel = label || '';
     render(leaderboard, me);
   } catch (err) {
     boxEl.innerHTML = `

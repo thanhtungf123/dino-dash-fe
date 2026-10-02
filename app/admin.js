@@ -427,8 +427,315 @@ function showPageForm(page) {
   });
 }
 
+// ==================== QUẢN LÝ TOP & THƯỞNG ====================
+function claimBlock(claim) {
+  if (!claim) {
+    return '<div class="season-claim season-claim-empty">Chưa điền thông tin</div>';
+  }
+  const row = (label, value) =>
+    value
+      ? `<div><span class="claim-k">${label}:</span> ${escapeHtml(value)}</div>`
+      : '';
+  return `
+    <div class="season-claim">
+      ${row('Họ tên', claim.fullName)}
+      ${row('SĐT', claim.phone)}
+      ${row('Ngân hàng', claim.bankName)}
+      ${row('Số TK', claim.bankAccount)}
+      ${row('Ghi chú', claim.note)}
+    </div>`;
+}
+
+function rewardStatus(reward) {
+  const amount = reward?.amount ? ` (${escapeHtml(reward.amount)})` : '';
+  if (reward?.awarded) {
+    const by = reward.awardedBy ? ` bởi ${escapeHtml(reward.awardedBy)}` : '';
+    return `<span class="claim-tag claim-done">✓ Đã trao${amount}${by}</span>`;
+  }
+  return `<span class="claim-tag claim-todo">Chưa trao${amount}</span>`;
+}
+
+function winnerCard(monthKey, w) {
+  const medal = ['🥇', '🥈', '🥉'][w.rank - 1] || `#${w.rank}`;
+  return `
+    <div class="season-winner" data-user="${escapeHtml(w.userId)}">
+      <div class="season-winner-head">
+        <span class="season-rank">${medal}</span>
+        <strong>${escapeHtml(w.username)}</strong>
+        <span class="season-score">${w.score} điểm</span>
+        ${rewardStatus(w.reward)}
+      </div>
+      ${claimBlock(w.claim)}
+      <div class="season-winner-actions">
+        ${
+          w.reward?.awarded
+            ? ''
+            : `<button class="auth-btn" data-act="award" data-month="${escapeHtml(
+                monthKey
+              )}" data-user="${escapeHtml(w.userId)}">Đánh dấu đã trao</button>`
+        }
+        <button class="auth-btn auth-btn-ghost" data-act="disqualify" data-month="${escapeHtml(
+          monthKey
+        )}" data-user="${escapeHtml(w.userId)}">Loại khỏi top</button>
+        <button class="auth-btn auth-btn-ghost season-ban" data-act="ban" data-user="${escapeHtml(
+          w.userId
+        )}" data-name="${escapeHtml(w.username)}">Cấm tài khoản</button>
+      </div>
+    </div>`;
+}
+
+function seasonCard(s) {
+  const statusLabel =
+    s.status === 'awarded' ? 'Đã trao đủ' : 'Đã chốt, chờ trao';
+  const auto = s.auto ? 'tự động' : 'admin chốt';
+  const winners = s.winners.length
+    ? s.winners.map(w => winnerCard(s.monthKey, w)).join('')
+    : '<p class="lb-empty">Tháng này chưa có ai ghi điểm.</p>';
+  return `
+    <div class="season-card" data-month="${escapeHtml(s.monthKey)}">
+      <div class="season-card-head">
+        <h3>Tháng ${escapeHtml(s.label)}</h3>
+        <span class="season-status">${statusLabel} · ${auto}</span>
+        <button class="auth-btn auth-btn-ghost" data-act="reclose" data-month="${escapeHtml(
+          s.monthKey
+        )}">Chốt lại</button>
+      </div>
+      ${winners}
+    </div>`;
+}
+
+async function renderSeasons() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  let seasons;
+  try {
+    ({ seasons } = await api.adminSeasons());
+  } catch (err) {
+    content.innerHTML = `<p class="lb-empty">Lỗi: ${escapeHtml(err.message)}</p>`;
+    return;
+  }
+
+  const list = seasons.length
+    ? seasons.map(seasonCard).join('')
+    : '<p class="lb-empty">Chưa có tháng nào được chốt.</p>';
+
+  content.innerHTML = `
+    <div class="admin-form season-admin">
+      <h2>Quản lý Top &amp; Thưởng</h2>
+      <p class="admin-hello">
+        Mỗi tháng tự chốt khi sang tháng mới. Bạn có thể bấm
+        <strong>Chốt tháng trước ngay</strong>, loại người gian lận (đẩy người
+        kế tiếp lên), xem thông tin nhận thưởng và đánh dấu đã trao.
+      </p>
+      <div class="season-toolbar">
+        <button class="auth-btn" id="btn-close-prev">Chốt tháng trước ngay</button>
+        <span class="admin-status" id="st-season"></span>
+      </div>
+      <div id="season-list">${list}</div>
+    </div>`;
+
+  document
+    .getElementById('btn-close-prev')
+    .addEventListener('click', () =>
+      runSeasonAction('Đã chốt tháng trước.', () => api.adminCloseSeason())
+    );
+
+  content.querySelectorAll('[data-act]').forEach(btn => {
+    const { act, month, user, name } = btn.dataset;
+    btn.addEventListener('click', () => handleSeasonAction(act, { month, user, name }));
+  });
+}
+
+async function runSeasonAction(okMsg, fn) {
+  const st = document.getElementById('st-season');
+  if (st) {
+    st.textContent = 'Đang xử lý…';
+    st.className = 'admin-status';
+  }
+  try {
+    await fn();
+    await renderSeasons();
+  } catch (err) {
+    if (st) {
+      st.textContent = '✗ ' + err.message;
+      st.classList.add('err');
+    } else {
+      alert('Lỗi: ' + err.message);
+    }
+  }
+}
+
+function handleSeasonAction(act, { month, user, name }) {
+  if (act === 'reclose') {
+    runSeasonAction('Đã chốt lại.', () => api.adminCloseSeason(month));
+  } else if (act === 'award') {
+    if (!confirm('Xác nhận ĐÃ TRAO thưởng cho người này?')) return;
+    runSeasonAction('Đã đánh dấu trao thưởng.', () => api.adminAward(month, user));
+  } else if (act === 'disqualify') {
+    if (!confirm('Loại người này khỏi top tháng? Người kế tiếp sẽ được đẩy lên.'))
+      return;
+    runSeasonAction('Đã loại khỏi top.', () => api.adminDisqualify(month, user));
+  } else if (act === 'ban') {
+    if (
+      !confirm(
+        `Cấm tài khoản "${name}" do gian lận? Họ sẽ bị xóa khỏi bảng xếp hạng và không đăng nhập được.`
+      )
+    )
+      return;
+    const reason = prompt('Lý do cấm (tùy chọn):', 'Gian lận điểm') || '';
+    runSeasonAction('Đã cấm tài khoản.', () => api.adminBanUser(user, reason));
+  }
+}
+
+// ==================== QUẢN LÝ NGƯỜI CHƠI ====================
+const usersState = { q: '', page: 1, bannedOnly: false };
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('vi-VN');
+  } catch {
+    return '—';
+  }
+}
+
+function userRow(u) {
+  const badges =
+    (u.isAdmin ? '<span class="user-badge user-admin">admin</span>' : '') +
+    (u.banned ? '<span class="user-badge user-banned">bị cấm</span>' : '');
+  const status = u.banned
+    ? `<span class="claim-tag claim-todo">Bị cấm${
+        u.banReason ? ': ' + escapeHtml(u.banReason) : ''
+      }</span><div class="user-bannedat">${fmtDate(u.bannedAt)}</div>`
+    : '<span class="claim-tag claim-done">Hoạt động</span>';
+
+  // Không cho cấm tài khoản admin (backend cũng chặn).
+  let action = '';
+  if (u.banned) {
+    action = `<button class="auth-btn auth-btn-ghost" data-act="unban" data-id="${escapeHtml(
+      u.id
+    )}" data-name="${escapeHtml(u.username)}">Bỏ cấm</button>`;
+  } else if (!u.isAdmin) {
+    action = `<button class="auth-btn auth-btn-ghost season-ban" data-act="ban" data-id="${escapeHtml(
+      u.id
+    )}" data-name="${escapeHtml(u.username)}">Cấm</button>`;
+  }
+
+  return `
+    <tr>
+      <td><strong>${escapeHtml(u.username)}</strong> ${badges}</td>
+      <td class="lb-score">${u.bestScore}</td>
+      <td>${u.gamesPlayed}</td>
+      <td>${fmtDate(u.createdAt)}</td>
+      <td>${status}</td>
+      <td>${action}</td>
+    </tr>`;
+}
+
+async function renderUsers() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  let data;
+  try {
+    data = await api.adminUsers(usersState);
+  } catch (err) {
+    content.innerHTML = `<p class="lb-empty">Lỗi: ${escapeHtml(err.message)}</p>`;
+    return;
+  }
+
+  const { users, total, page, pageSize } = data;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const body = users.length
+    ? users.map(userRow).join('')
+    : '<tr><td colspan="6" class="lb-empty">Không có người chơi nào.</td></tr>';
+
+  content.innerHTML = `
+    <div class="admin-form user-admin">
+      <h2>Quản lý người chơi</h2>
+      <div class="user-toolbar">
+        <form id="user-search" class="user-search">
+          <input id="user-q" placeholder="Tìm theo tên đăng nhập…" value="${escapeHtml(
+            usersState.q
+          )}" />
+          <button class="auth-btn" type="submit">Tìm</button>
+        </form>
+        <label class="user-filter">
+          <input type="checkbox" id="user-banned-only" ${
+            usersState.bannedOnly ? 'checked' : ''
+          } /> Chỉ hiện tài khoản bị cấm
+        </label>
+        <span class="user-total">Tổng: ${total}</span>
+      </div>
+      <table class="lb-table user-table">
+        <thead>
+          <tr><th>Người chơi</th><th>Kỷ lục</th><th>Số ván</th><th>Ngày tạo</th><th>Trạng thái</th><th>Hành động</th></tr>
+        </thead>
+        <tbody>${body}</tbody>
+      </table>
+      <div class="user-pager">
+        <button class="auth-btn auth-btn-ghost" id="user-prev" ${
+          page <= 1 ? 'disabled' : ''
+        }>← Trước</button>
+        <span>Trang ${page}/${totalPages}</span>
+        <button class="auth-btn auth-btn-ghost" id="user-next" ${
+          page >= totalPages ? 'disabled' : ''
+        }>Sau →</button>
+      </div>
+    </div>`;
+
+  document.getElementById('user-search').addEventListener('submit', e => {
+    e.preventDefault();
+    usersState.q = document.getElementById('user-q').value.trim();
+    usersState.page = 1;
+    renderUsers();
+  });
+  document.getElementById('user-banned-only').addEventListener('change', e => {
+    usersState.bannedOnly = e.target.checked;
+    usersState.page = 1;
+    renderUsers();
+  });
+  document.getElementById('user-prev').addEventListener('click', () => {
+    if (usersState.page > 1) {
+      usersState.page -= 1;
+      renderUsers();
+    }
+  });
+  document.getElementById('user-next').addEventListener('click', () => {
+    if (usersState.page < totalPages) {
+      usersState.page += 1;
+      renderUsers();
+    }
+  });
+
+  content.querySelectorAll('[data-act]').forEach(btn => {
+    const { act, id, name } = btn.dataset;
+    btn.addEventListener('click', () => handleUserAction(act, { id, name }));
+  });
+}
+
+async function handleUserAction(act, { id, name }) {
+  try {
+    if (act === 'ban') {
+      if (
+        !confirm(
+          `Cấm tài khoản "${name}" do gian lận? Họ sẽ bị xóa khỏi bảng xếp hạng và không đăng nhập được.`
+        )
+      )
+        return;
+      const reason = prompt('Lý do cấm (tùy chọn):', 'Gian lận điểm') || '';
+      await api.adminBanUser(id, reason);
+    } else if (act === 'unban') {
+      if (!confirm(`Bỏ cấm tài khoản "${name}"?`)) return;
+      await api.adminUnbanUser(id);
+    }
+    renderUsers();
+  } catch (err) {
+    alert('Lỗi: ' + err.message);
+  }
+}
+
 // ==================== KHUNG + SIDEBAR ====================
 const SECTIONS = [
+  { key: 'seasons', label: 'Quản lý Top & Thưởng', render: renderSeasons },
+  { key: 'users', label: 'Quản lý người chơi', render: renderUsers },
   { key: 'home', label: 'Nội dung trang chủ', render: renderHomeContent },
   { key: 'about', label: 'Giới thiệu', render: renderAbout },
   { key: 'rewards', label: 'Phần thưởng', render: renderRewards },
@@ -475,7 +782,7 @@ async function boot() {
   root.querySelectorAll('.admin-navbtn').forEach(btn =>
     btn.addEventListener('click', () => selectSection(btn.dataset.key))
   );
-  selectSection('home');
+  selectSection('seasons');
 }
 
 boot();
