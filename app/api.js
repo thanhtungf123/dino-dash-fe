@@ -105,6 +105,13 @@ export const api = {
   updatePage: (id, data) => request(`/pages/${id}`, { method: 'PUT', body: data }),
   deletePage: id => request(`/pages/${id}`, { method: 'DELETE' }),
 
+  // Quản lý trò chơi (admin).
+  adminGames: () => request('/admin/games'),
+  createGame: data => request('/admin/games', { method: 'POST', body: data }),
+  updateGame: (id, data) =>
+    request(`/admin/games/${id}`, { method: 'PUT', body: data }),
+  deleteGame: id => request(`/admin/games/${id}`, { method: 'DELETE' }),
+
   // Upload ảnh (favicon/logo) — dùng FormData nên gọi fetch trực tiếp.
   uploadImage: async file => {
     const fd = new FormData();

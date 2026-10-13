@@ -793,6 +793,231 @@ async function renderSeo() {
   });
 }
 
+// ==================== TRANG TỔNG HỢP TRÒ CHƠI ====================
+const GAME_PATH_PREFIX = '/games';
+const LISTING_PATH = '/all-games';
+
+async function renderGamesIndexContent() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  const data = (await api.getContent('games')).data || {};
+  content.innerHTML = `
+    <form class="admin-form" id="form-games-index">
+      <h2>Trang tổng hợp trò chơi</h2>
+      <p class="admin-hello">
+        Nội dung đầu trang <a href="${LISTING_PATH}" target="_blank">${LISTING_PATH}</a>.
+        H1, tiêu đề (title) và mô tả (meta) dưới đây hiển thị cho cả người dùng và Google.
+      </p>
+      <label>Tiêu đề trang (H1)
+        <input id="gi-title" value="${escapeHtml(data.title || '')}" />
+      </label>
+      <label>Tiêu đề SEO (title) <small>(để trống = dùng H1)</small>
+        <input id="gi-metatitle" maxlength="200" value="${escapeHtml(data.metaTitle || '')}" />
+      </label>
+      <label>Mô tả SEO (meta description) <small>(~150–160 ký tự)</small>
+        <textarea id="gi-metadesc" rows="2" maxlength="320">${escapeHtml(data.metaDescription || '')}</textarea>
+      </label>
+      <label>Nội dung giới thiệu (hiện trên lưới game)</label>
+      <div class="rte-wrap"><div id="gi-editor"></div></div>
+      <div class="admin-actions">
+        <button class="auth-btn" type="submit">Lưu trang tổng hợp</button>
+        <span class="admin-status" id="st-games-index"></span>
+      </div>
+    </form>`;
+  const q = mountQuill('gi-editor', data.intro || '');
+  document.getElementById('form-games-index').addEventListener('submit', e => {
+    e.preventDefault();
+    runSave('st-games-index', () =>
+      api.updateContent('games', {
+        title: val('gi-title'),
+        metaTitle: val('gi-metatitle'),
+        metaDescription: val('gi-metadesc'),
+        intro: q.root.innerHTML,
+      })
+    );
+  });
+}
+
+// ==================== QUẢN LÝ TRÒ CHƠI ====================
+async function renderGames() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  let games;
+  try {
+    ({ games } = await api.adminGames());
+  } catch (err) {
+    content.innerHTML = `<p class="lb-empty">Lỗi: ${escapeHtml(err.message)}</p>`;
+    return;
+  }
+  showGamesList(games);
+}
+
+function showGamesList(games) {
+  const rows = games.length
+    ? games
+        .map(
+          g => `
+      <div class="page-row" data-id="${g.id}">
+        <div class="page-row-info">
+          <strong>${escapeHtml(g.title)}</strong>
+          <a class="page-slug" href="${GAME_PATH_PREFIX}/${escapeHtml(g.slug)}" target="_blank">${GAME_PATH_PREFIX}/${escapeHtml(g.slug)}</a>
+          ${g.published ? '' : '<span class="page-tag">nháp</span>'}
+          ${g.noindex ? '<span class="page-tag">noindex</span>' : ''}
+        </div>
+        <div class="page-row-actions">
+          <button type="button" class="auth-btn auth-btn-ghost" data-act="edit">Sửa</button>
+          <button type="button" class="auth-btn auth-btn-ghost page-del" data-act="del">Xóa</button>
+        </div>
+      </div>`
+        )
+        .join('')
+    : '<p class="lb-empty">Chưa có trò chơi nào.</p>';
+
+  content.innerHTML = `
+    <div class="admin-form">
+      <h2>Quản lý trò chơi</h2>
+      <p class="admin-hello">
+        Thêm trò chơi bằng cách nhúng iframe (vd từ my.gamepix.com). Mỗi game có
+        URL riêng <code>${GAME_PATH_PREFIX}/&lt;slug&gt;</code> và nội dung SEO riêng.
+      </p>
+      <div id="games-list">${rows}</div>
+      <button type="button" class="auth-btn" id="game-new">+ Thêm trò chơi</button>
+    </div>`;
+
+  document
+    .getElementById('game-new')
+    .addEventListener('click', () => showGameForm(null));
+  content.querySelectorAll('.page-row').forEach(row => {
+    const id = row.dataset.id;
+    row.querySelector('[data-act="edit"]').addEventListener('click', () => {
+      showGameForm(games.find(x => x.id === id));
+    });
+    row.querySelector('[data-act="del"]').addEventListener('click', async () => {
+      if (!confirm('Xóa trò chơi này?')) return;
+      try {
+        await api.deleteGame(id);
+        renderGames();
+      } catch (err) {
+        alert('Lỗi: ' + err.message);
+      }
+    });
+  });
+}
+
+function showGameForm(game) {
+  const isNew = !game;
+  let thumbUrl = game?.thumbnailUrl || '';
+
+  content.innerHTML = `
+    <form class="admin-form" id="form-game">
+      <h2>${isNew ? 'Thêm trò chơi' : 'Sửa trò chơi'}</h2>
+      <label>Đường dẫn (slug) <small>(vd: snake-3d → URL ${GAME_PATH_PREFIX}/snake-3d)</small>
+        <input id="gm-slug" value="${escapeHtml(game?.slug || '')}" placeholder="snake-3d" />
+      </label>
+      <label>Tên trò chơi (H1)
+        <input id="gm-title" value="${escapeHtml(game?.title || '')}" />
+      </label>
+      <label>Link nhúng iframe <small>(dán nguyên thẻ &lt;iframe&gt; hoặc chỉ link, vd từ my.gamepix.com)</small>
+        <textarea id="gm-embed" rows="3" placeholder='&lt;iframe src="https://play.gamepix.com/..."&gt;&lt;/iframe&gt; hoặc https://play.gamepix.com/...'>${escapeHtml(game?.embedUrl || '')}</textarea>
+      </label>
+      <label>Ảnh thu nhỏ <small>(hiện ở trang tổng hợp)</small></label>
+      <div class="set-imgbox">
+        <div class="set-preview" id="gm-thumb-prev">
+          ${thumbUrl ? `<img src="${escapeHtml(thumbUrl)}" alt="thumbnail" />` : '<span class="set-empty">Chưa có</span>'}
+        </div>
+        <div class="set-imgactions">
+          <label class="auth-btn auth-btn-ghost set-uploadbtn">
+            Tải ảnh lên
+            <input type="file" id="gm-thumb-file" accept="image/*" hidden />
+          </label>
+          <button type="button" class="auth-btn auth-btn-ghost" id="gm-thumb-del">Xóa</button>
+          <span class="admin-status" id="st-gm-thumb"></span>
+        </div>
+      </div>
+      <label>Mô tả ngắn <small>(hiện dưới tên game ở trang tổng hợp)</small>
+        <textarea id="gm-short" rows="2">${escapeHtml(game?.shortDescription || '')}</textarea>
+      </label>
+      <label>Tiêu đề SEO (title) <small>(để trống = dùng tên trò chơi)</small>
+        <input id="gm-metatitle" maxlength="200" value="${escapeHtml(game?.metaTitle || '')}" />
+      </label>
+      <label>Mô tả SEO (meta description)
+        <textarea id="gm-metadesc" rows="2" maxlength="320">${escapeHtml(game?.metaDescription || '')}</textarea>
+      </label>
+      <label>Nội dung chi tiết <small>(hiện dưới game)</small></label>
+      <div class="rte-wrap"><div id="gm-editor"></div></div>
+      <label>Thứ tự sắp xếp <small>(số nhỏ hiện trước)</small>
+        <input id="gm-order" type="number" value="${Number(game?.order || 0)}" />
+      </label>
+      <label class="auth-show">
+        <input type="checkbox" id="gm-published" ${game?.published === false ? '' : 'checked'} />
+        Hiển thị công khai (bỏ chọn = lưu nháp, khách không thấy)
+      </label>
+      <label class="auth-show">
+        <input type="checkbox" id="gm-noindex" ${game?.noindex ? 'checked' : ''} />
+        Ẩn khỏi Google (noindex)
+      </label>
+      <div class="admin-actions">
+        <button class="auth-btn" type="submit">Lưu trò chơi</button>
+        <button type="button" class="auth-btn auth-btn-ghost" id="gm-cancel">Hủy</button>
+        <span class="admin-status" id="st-game"></span>
+      </div>
+    </form>`;
+
+  const gmQuill = mountQuill('gm-editor', game?.body || '');
+
+  // Upload ảnh thu nhỏ.
+  document.getElementById('gm-thumb-file').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const st = document.getElementById('st-gm-thumb');
+    st.textContent = 'Đang tải lên…';
+    st.className = 'admin-status';
+    try {
+      const { url } = await api.uploadImage(file);
+      thumbUrl = url;
+      document.getElementById('gm-thumb-prev').innerHTML = `<img src="${escapeHtml(url)}" alt="thumbnail" />`;
+      st.textContent = '✓ Đã tải lên';
+      st.classList.add('ok');
+    } catch (err) {
+      st.textContent = '✗ ' + err.message;
+      st.classList.add('err');
+    }
+    e.target.value = '';
+  });
+  document.getElementById('gm-thumb-del').addEventListener('click', () => {
+    thumbUrl = '';
+    document.getElementById('gm-thumb-prev').innerHTML =
+      '<span class="set-empty">Chưa có</span>';
+  });
+
+  document.getElementById('gm-cancel').addEventListener('click', renderGames);
+  document.getElementById('form-game').addEventListener('submit', async e => {
+    e.preventDefault();
+    const data = {
+      slug: val('gm-slug'),
+      title: val('gm-title'),
+      metaTitle: val('gm-metatitle'),
+      metaDescription: val('gm-metadesc'),
+      thumbnailUrl: thumbUrl,
+      embedUrl: val('gm-embed'),
+      shortDescription: val('gm-short'),
+      body: gmQuill.root.innerHTML,
+      order: Number(val('gm-order')) || 0,
+      published: document.getElementById('gm-published').checked,
+      noindex: document.getElementById('gm-noindex').checked,
+    };
+    const st = document.getElementById('st-game');
+    st.textContent = 'Đang lưu…';
+    st.className = 'admin-status';
+    try {
+      if (isNew) await api.createGame(data);
+      else await api.updateGame(game.id, data);
+      renderGames();
+    } catch (err) {
+      st.textContent = '✗ ' + err.message;
+      st.classList.add('err');
+    }
+  });
+}
+
 // ==================== KHUNG + SIDEBAR ====================
 const SECTIONS = [
   { key: 'seasons', label: 'Quản lý Top & Thưởng', render: renderSeasons },
@@ -800,6 +1025,8 @@ const SECTIONS = [
   { key: 'home', label: 'Nội dung trang chủ', render: renderHomeContent },
   { key: 'about', label: 'Giới thiệu', render: renderAbout },
   { key: 'rewards', label: 'Phần thưởng', render: renderRewards },
+  { key: 'games', label: 'Quản lý trò chơi', render: renderGames },
+  { key: 'games-index', label: 'Trang tổng hợp trò chơi', render: renderGamesIndexContent },
   { key: 'pages', label: 'Quản lý trang', render: renderPages },
   { key: 'seo', label: 'SEO / Tiêu đề trang', render: renderSeo },
   { key: 'settings', label: 'Cài đặt website', render: renderSettings },
