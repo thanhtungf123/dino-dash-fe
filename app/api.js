@@ -99,6 +99,9 @@ export const api = {
   updateSettings: data =>
     request('/settings', { method: 'PUT', body: { data } }),
 
+  // Danh sách trang hiển thị trên menu header (công khai).
+  pagesMenu: () => request('/pages/menu'),
+
   // Quản lý trang tùy biến (admin).
   pages: () => request('/pages'),
   createPage: data => request('/pages', { method: 'POST', body: data }),

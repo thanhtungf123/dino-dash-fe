@@ -90,6 +90,12 @@ function escapeHtml(str) {
     }
     if (html) footer.innerHTML = html;
   }
+
+  // Menu header: ẩn các mục bị admin tắt. Mục "Hồ sơ" không có data-nav nên luôn hiện.
+  const menu = data.menu || {};
+  document.querySelectorAll('.nav-menu li[data-nav]').forEach(li => {
+    if (menu[li.dataset.nav] === false) li.style.display = 'none';
+  });
 })();
 
 // --- SEO: áp title + thẻ meta cho từng trang theo cấu hình của admin ---
@@ -140,4 +146,32 @@ function setMeta(attr, name, value) {
     setMeta('property', 'og:description', cfg.description);
     setMeta('name', 'twitter:description', cfg.description);
   }
+})();
+
+// --- Chèn các trang tùy biến (admin bật "Hiển thị trên menu") vào menu header ---
+// Chèn trước mục "Hồ sơ" nếu có; nếu không thì thêm vào cuối. Áp dụng mọi trang.
+(async () => {
+  let pages;
+  try {
+    ({ pages } = await api.pagesMenu());
+  } catch {
+    return; // lỗi mạng -> bỏ qua
+  }
+  if (!Array.isArray(pages) || !pages.length) return;
+
+  document.querySelectorAll('.nav-menu').forEach(ul => {
+    const items = [...ul.querySelectorAll('li')];
+    const profileLi = items.find(li => {
+      const href = li.querySelector('a')?.getAttribute('href') || '';
+      return /(^|\/)profile\.html$/.test(href);
+    });
+    pages.forEach(p => {
+      if (!p.slug || !p.title) return;
+      const li = document.createElement('li');
+      li.className = 'nav-page';
+      li.innerHTML = `<a href="/${escapeHtml(p.slug)}">${escapeHtml(p.title)}</a>`;
+      if (profileLi) ul.insertBefore(li, profileLi);
+      else ul.appendChild(li);
+    });
+  });
 })();

@@ -1606,3 +1606,9 @@ kbd {
     min-height: 240px;
   }
 }
+
+/* Bật/tắt mục menu trong admin */
+.menu-toggle {
+  font-size: 14px;
+  margin: 8px 0;
+}

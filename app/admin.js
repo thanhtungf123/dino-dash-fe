@@ -332,6 +332,7 @@ function showPagesList(pages) {
         <div class="page-row-info">
           <strong>${escapeHtml(p.title)}</strong>
           <a class="page-slug" href="/${escapeHtml(p.slug)}" target="_blank">/${escapeHtml(p.slug)}</a>
+          ${p.showInMenu ? '<span class="page-tag">menu</span>' : ''}
           ${p.noindex ? '<span class="page-tag">noindex</span>' : ''}
         </div>
         <div class="page-row-actions">
@@ -395,6 +396,10 @@ function showPageForm(page) {
         <input type="checkbox" id="pg-noindex" ${page?.noindex ? 'checked' : ''} />
         Ẩn khỏi Google (noindex)
       </label>
+      <label class="auth-show">
+        <input type="checkbox" id="pg-menu" ${page?.showInMenu ? 'checked' : ''} />
+        Hiển thị trên menu header
+      </label>
       <div class="admin-actions">
         <button class="auth-btn" type="submit">Lưu trang</button>
         <button type="button" class="auth-btn auth-btn-ghost" id="pg-cancel">Hủy</button>
@@ -412,6 +417,7 @@ function showPageForm(page) {
       metaDescription: val('pg-desc'),
       body: pgQuill.root.innerHTML,
       noindex: document.getElementById('pg-noindex').checked,
+      showInMenu: document.getElementById('pg-menu').checked,
     };
     const st = document.getElementById('st-page');
     st.textContent = 'Đang lưu…';
@@ -1018,6 +1024,53 @@ function showGameForm(game) {
   });
 }
 
+// ==================== MENU HEADER (BẬT/TẮT) ====================
+const MENU_ITEMS = [
+  { key: 'allGames', label: 'Trò chơi' },
+  { key: 'howToPlay', label: 'Cách chơi' },
+  { key: 'leaderboard', label: 'Bảng xếp hạng' },
+  { key: 'rewards', label: 'Phần thưởng' },
+  { key: 'about', label: 'Giới thiệu' },
+];
+
+async function renderMenu() {
+  content.innerHTML = '<p class="lb-empty">Đang tải…</p>';
+  let menu = {};
+  try {
+    menu = (await api.getSettings()).data.menu || {};
+  } catch {
+    /* lỗi mạng -> coi như mặc định (bật hết) */
+  }
+  content.innerHTML = `
+    <form class="admin-form" id="form-menu">
+      <h2>Menu header</h2>
+      <p class="admin-hello">
+        Chọn mục nào hiển thị trên thanh menu đầu trang. Mục <strong>Hồ sơ</strong>
+        luôn hiển thị nên không có ở đây. Bỏ chọn = ẩn khỏi menu (trang vẫn truy cập được qua link trực tiếp).
+      </p>
+      ${MENU_ITEMS.map(
+        it => `
+        <label class="auth-show menu-toggle">
+          <input type="checkbox" id="menu-${it.key}" ${menu[it.key] === false ? '' : 'checked'} />
+          ${escapeHtml(it.label)}
+        </label>`
+      ).join('')}
+      <div class="admin-actions">
+        <button class="auth-btn" type="submit">Lưu menu</button>
+        <span class="admin-status" id="st-menu"></span>
+      </div>
+    </form>`;
+
+  document.getElementById('form-menu').addEventListener('submit', e => {
+    e.preventDefault();
+    const menuData = {};
+    MENU_ITEMS.forEach(it => {
+      menuData[it.key] = document.getElementById(`menu-${it.key}`).checked;
+    });
+    runSave('st-menu', () => api.updateSettings({ menu: menuData }));
+  });
+}
+
 // ==================== KHUNG + SIDEBAR ====================
 const SECTIONS = [
   { key: 'seasons', label: 'Quản lý Top & Thưởng', render: renderSeasons },
@@ -1029,6 +1082,7 @@ const SECTIONS = [
   { key: 'games-index', label: 'Trang tổng hợp trò chơi', render: renderGamesIndexContent },
   { key: 'pages', label: 'Quản lý trang', render: renderPages },
   { key: 'seo', label: 'SEO / Tiêu đề trang', render: renderSeo },
+  { key: 'menu', label: 'Menu header', render: renderMenu },
   { key: 'settings', label: 'Cài đặt website', render: renderSettings },
 ];
 
