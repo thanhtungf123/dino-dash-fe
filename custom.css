@@ -1617,8 +1617,21 @@ kbd {
 /* Nút toàn màn hình dưới khung game */
 .game-frame-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin-top: -18px;
+}
+
+.game-open-newtab {
+  font-size: 13.5px;
+  color: #3a6ea5;
+  text-decoration: none;
+}
+
+.game-open-newtab:hover {
+  text-decoration: underline;
 }
 
 .game-fs-btn {
@@ -1748,4 +1761,61 @@ body.fs-lock {
 
 .mc-fs-btn:active {
   transform: scale(0.98);
+}
+
+/* ------------------- Poster "Bấm để chơi" + nút tải lại ------------------- */
+.game-play-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  background-color: #1b2a38;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 100vmax rgba(0, 0, 0, 0.4);
+}
+
+.game-play-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding-left: 4px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 24px;
+}
+
+.game-play-text {
+  font-weight: 700;
+  font-size: 15px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.game-reload-btn {
+  border: 1px solid rgba(122, 122, 122, 0.35);
+  background: #fff;
+  color: rgb(80, 80, 80);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.game-reload-btn:hover {
+  border-color: #d1901f;
+  color: #d1901f;
 }

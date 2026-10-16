@@ -19,22 +19,79 @@ function escapeHtml(str) {
 const val = id => document.getElementById(id).value;
 let content = null; // vùng nội dung bên phải
 
+// Nút ảnh: chọn file -> upload Cloudinary -> chèn URL (KHÔNG nhúng base64 -> nhẹ).
+function selectAndUploadImage(quill) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const range = quill.getSelection(true);
+    quill.enable(false); // khóa editor trong lúc tải (báo "đang bận")
+    try {
+      const { url } = await api.uploadImage(file);
+      quill.enable(true);
+      quill.insertEmbed(range.index, 'image', url, 'user');
+      quill.setSelection(range.index + 1);
+    } catch (err) {
+      quill.enable(true);
+      alert('Tải ảnh thất bại: ' + err.message);
+    }
+  });
+  input.click();
+}
+
 // Tạo editor Quill (giàu định dạng) trên 1 div; đọc HTML qua q.root.innerHTML.
 function mountQuill(containerId, initialHtml) {
   const q = new Quill('#' + containerId, {
     theme: 'snow',
     placeholder: 'Soạn nội dung...',
     modules: {
-      toolbar: [
-        [{ header: [2, 3, 4, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['blockquote', 'link', 'image'],
-        [{ align: [] }],
-        ['clean'],
-      ],
+      toolbar: {
+        container: [
+          [{ header: [2, 3, 4, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['blockquote', 'link', 'image'],
+          [{ align: [] }],
+          ['clean'],
+        ],
+        handlers: {
+          image: () => selectAndUploadImage(q),
+        },
+      },
     },
   });
+  // Dán (Ctrl+V ảnh chụp màn hình) hoặc kéo-thả ảnh: cũng upload thay vì base64.
+  const uploadAt = async (file, index) => {
+    try {
+      const { url } = await api.uploadImage(file);
+      q.insertEmbed(index, 'image', url, 'user');
+      q.setSelection(index + 1);
+    } catch (err) {
+      alert('Tải ảnh thất bại: ' + err.message);
+    }
+  };
+  q.root.addEventListener('paste', e => {
+    const files = [...(e.clipboardData?.files || [])].filter(f =>
+      f.type.startsWith('image/')
+    );
+    if (!files.length) return; // dán chữ -> để Quill xử lý bình thường
+    e.preventDefault();
+    const at = (q.getSelection(true) || { index: q.getLength() }).index;
+    files.forEach((f, i) => uploadAt(f, at + i));
+  });
+  q.root.addEventListener('drop', e => {
+    const files = [...(e.dataTransfer?.files || [])].filter(f =>
+      f.type.startsWith('image/')
+    );
+    if (!files.length) return;
+    e.preventDefault();
+    const at = (q.getSelection() || { index: q.getLength() }).index;
+    files.forEach((f, i) => uploadAt(f, at + i));
+  });
+
   if (initialHtml) q.clipboard.dangerouslyPasteHTML(initialHtml);
   return q;
 }
