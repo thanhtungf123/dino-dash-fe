@@ -1715,8 +1715,9 @@ body.fs-lock {
   50% { transform: rotate(90deg); }
 }
 
-/* Chỉ hiện khi: màn dọc + thiết bị cảm ứng + game cần màn hình ngang */
-@media (orientation: portrait) and (pointer: coarse) {
+/* Chỉ hiện khi: màn dọc + màn hình nhỏ (điện thoại/máy tính bảng) + game cần màn hình ngang.
+   Dùng max-width thay cho pointer:coarse để chạy đúng cả trên giả lập DevTools. */
+@media (orientation: portrait) and (max-width: 1024px) {
   .game-frame.needs-landscape .rotate-overlay {
     display: flex;
     align-items: center;
