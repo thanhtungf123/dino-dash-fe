@@ -953,6 +953,10 @@ function showGameForm(game) {
         <input id="gm-order" type="number" value="${Number(game?.order || 0)}" />
       </label>
       <label class="auth-show">
+        <input type="checkbox" id="gm-landscape" ${game?.requireLandscape ? 'checked' : ''} />
+        Game cần màn hình ngang (hiện thông báo xoay máy trên điện thoại)
+      </label>
+      <label class="auth-show">
         <input type="checkbox" id="gm-published" ${game?.published === false ? '' : 'checked'} />
         Hiển thị công khai (bỏ chọn = lưu nháp, khách không thấy)
       </label>
@@ -1007,6 +1011,7 @@ function showGameForm(game) {
       shortDescription: val('gm-short'),
       body: gmQuill.root.innerHTML,
       order: Number(val('gm-order')) || 0,
+      requireLandscape: document.getElementById('gm-landscape').checked,
       published: document.getElementById('gm-published').checked,
       noindex: document.getElementById('gm-noindex').checked,
     };

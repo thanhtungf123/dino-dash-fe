@@ -1612,3 +1612,139 @@ kbd {
   font-size: 14px;
   margin: 8px 0;
 }
+
+/* ------------------- Toàn màn hình + xoay máy cho game nhúng ------------------- */
+/* Nút toàn màn hình dưới khung game */
+.game-frame-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -18px;
+}
+
+.game-fs-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(122, 122, 122, 0.35);
+  background: #fff;
+  color: rgb(80, 80, 80);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.game-fs-btn:hover {
+  border-color: #d1901f;
+  color: #d1901f;
+}
+
+/* Fullscreen thật (Android/máy tính): khung game lấp đầy màn hình */
+.game-frame:fullscreen,
+.game-frame:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  min-height: 0;
+  border-radius: 0;
+  border: 0;
+}
+
+/* Pseudo-fullscreen (iOS Safari không hỗ trợ fullscreen <div>) */
+body.fs-lock {
+  overflow: hidden;
+}
+
+.game-frame.pseudo-fs {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  aspect-ratio: auto;
+  min-height: 0;
+  border-radius: 0;
+  border: 0;
+}
+
+/* Nút thoát (chỉ hiện ở chế độ pseudo-fullscreen trên iOS) */
+.game-fs-exit {
+  display: none;
+}
+
+.game-frame.pseudo-fs .game-fs-exit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10001;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Lớp phủ "xoay ngang điện thoại" cho game cần màn hình ngang */
+.rotate-overlay {
+  display: none;
+}
+
+.rotate-overlay-inner {
+  text-align: center;
+  color: #fff;
+}
+
+.rotate-icon {
+  display: block;
+  font-size: 54px;
+  margin-bottom: 10px;
+  animation: rotateHint 1.8s ease-in-out infinite;
+}
+
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
+/* Chỉ hiện khi: màn dọc + thiết bị cảm ứng + game cần màn hình ngang */
+@media (orientation: portrait) and (pointer: coarse) {
+  .game-frame.needs-landscape .rotate-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    background: rgba(0, 0, 0, 0.92);
+    padding: 24px;
+  }
+}
+
+/* Nút toàn màn hình của game khủng long (mobile) */
+.mc-fs-btn {
+  display: block;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 12px 18px;
+  border: 2px solid #535353;
+  border-radius: 12px;
+  background: #fff;
+  color: #535353;
+  font-family: 'Segoe UI', Roboto, system-ui, -apple-system, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mc-fs-btn:active {
+  transform: scale(0.98);
+}
