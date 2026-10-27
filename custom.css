@@ -1743,26 +1743,6 @@ body.fs-lock {
   }
 }
 
-/* Nút toàn màn hình của game khủng long (mobile) */
-.mc-fs-btn {
-  display: block;
-  width: 100%;
-  margin: 0 0 12px;
-  padding: 12px 18px;
-  border: 2px solid #535353;
-  border-radius: 12px;
-  background: #fff;
-  color: #535353;
-  font-family: 'Segoe UI', Roboto, system-ui, -apple-system, Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.mc-fs-btn:active {
-  transform: scale(0.98);
-}
-
 /* ------------------- Poster "Bấm để chơi" + nút tải lại ------------------- */
 .game-play-poster {
   position: absolute;

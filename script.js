@@ -16,43 +16,6 @@ window.addEventListener('load', async () => {
     }
   });
 
-  // --- Nút toàn màn hình cho mobile (bàn phím không có phím F) ---
-  // Bật arcade-mode (phóng to game) + gọi Fullscreen API thật nơi hỗ trợ
-  // (Android/máy tính ẩn được thanh trình duyệt; iOS Safari không hỗ trợ -> chỉ phóng to).
-  const fsBtn = document.getElementById('btn-fullscreen');
-  if (fsBtn) {
-    const docEl = document.documentElement;
-    const enterReal = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
-    const exitReal = document.exitFullscreen || document.webkitExitFullscreen;
-    const inReal = () => document.fullscreenElement || document.webkitFullscreenElement;
-    const setLabel = on => (fsBtn.textContent = on ? '✕ Thoát' : '⛶ Toàn màn hình');
-
-    fsBtn.addEventListener('click', () => {
-      const on = document.body.classList.toggle('arcade-mode');
-      try {
-        if (on && enterReal) {
-          const p = enterReal.call(docEl);
-          if (p && p.catch) p.catch(() => {});
-        } else if (!on && exitReal && inReal()) {
-          exitReal.call(document);
-        }
-      } catch {
-        /* bỏ qua lỗi fullscreen */
-      }
-      setLabel(on);
-    });
-
-    // Người dùng thoát fullscreen thật (back/Esc/vuốt) -> đồng bộ tắt arcade-mode.
-    const syncExit = () => {
-      if (!inReal() && document.body.classList.contains('arcade-mode')) {
-        document.body.classList.remove('arcade-mode');
-        setLabel(false);
-      }
-    };
-    document.addEventListener('fullscreenchange', syncExit);
-    document.addEventListener('webkitfullscreenchange', syncExit);
-  }
-
   // --- Nút điều khiển cho mobile ---
   // Game lắng nghe keydown/keyup, nên nút chỉ cần phát ra sự kiện phím tương ứng.
   const sendKey = (type, keyCode) =>
